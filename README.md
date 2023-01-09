@@ -1,9 +1,15 @@
 # Netick-Facepunch-Transport
  A Transport class for Netick that uses SteamNetworkingSockets with Facepunch.Steamworks
  
+ Credits: 
+  - me: Facepunch.Steamworks SteamNetworkingSockets example, Better (IMO) FPS demo scene
+  - Adevian: Netick integration
+  - Karrar: Netick
+ 
  TODO:
   - better character controller
   - voice chat
+ 
  
 ![Screenshot_1](https://user-images.githubusercontent.com/59656122/211421510-d57db421-8b6c-4cd2-8d67-5304a0a71bb5.png)
 
