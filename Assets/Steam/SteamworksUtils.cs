@@ -55,6 +55,11 @@ public class SteamworksUtils : MonoBehaviour
         }
     }
 
+    private void OnDestroy()
+    {
+        SteamClient.Shutdown();
+    }
+
     private void Start()
     {
         if (!SteamClient.IsValid)
