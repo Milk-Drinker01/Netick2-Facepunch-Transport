@@ -1,4 +1,5 @@
-﻿using Steamworks;
+﻿using Netick;
+using Steamworks;
 using Steamworks.Data;
 using Steamworks.ServerList;
 using System;
@@ -100,12 +101,13 @@ public class SteamworksUtils : MonoBehaviour
             Debug.LogError("Game Lobby Created");
         };
     }
+    #region Lobby Stuff
 
+    public Lobby _lobby;
+    LobbyType _lobbyType;
     List<Lobby> Matches = new List<Lobby>();
-
     public async void Search()
     {
-
         _lobbyType = LobbyType.Public;
 
         //var lobbies = await SteamMatchmaking.LobbyList.WithSlotsAvailable(1).FilterDistanceWorldwide().WithKeyValue("GameName", GameName).RequestAsync();
@@ -152,46 +154,11 @@ public class SteamworksUtils : MonoBehaviour
         Netick.Examples.Steam.LobbyUI.instance.UpdateLobbyList(Matches);
     }
 
-    LobbyType _lobbyType;
-    public Lobby _lobby;
-
     public void CreateLobby(int lobbyType)
     {
         _lobbyType = (LobbyType)lobbyType;
 
         Task.Run(async () => await SteamMatchmaking.CreateLobbyAsync());
-    }
-
-    public static async Task JoinLobby(ulong id)
-    {
-        await SteamMatchmaking.JoinLobbyAsync(id);
-    }
-
-    public void StartGame()
-    {
-        Netick.Network.StartAsServer(4050, SandboxPrefab);
-    }
-    public void Connect()
-    {
-        var sandbox = Netick.Network.StartAsClient(4050, SandboxPrefab);
-        sandbox.Connect(4050, "127.0.0.1");
-    }
-    public void StartGameClientAndServer()
-    {
-        Netick.Network.StartAsServerAndClient(4050, SandboxPrefab);
-    }
-
-    public void StopGame()
-    {
-        Netick.Network.Shutdown();
-    }
-
-    public void LeaveLobby()
-    {
-        Debug.Log("leaving lobby");
-        _lobby.Leave();
-        Netick.Network.Shutdown();
-        Netick.Examples.Steam.LobbyUI.instance.LeftLobby();
     }
 
     void OnLobbyCreated(Result status, Lobby lobby)
@@ -220,6 +187,17 @@ public class SteamworksUtils : MonoBehaviour
                 break;
         }
     }
+    public static async Task JoinLobby(ulong id)
+    {
+        await SteamMatchmaking.JoinLobbyAsync(id);
+    }
+    public void LeaveLobby()
+    {
+        Debug.Log("leaving lobby");
+        _lobby.Leave();
+        DisconnectFromServer();
+        Netick.Examples.Steam.LobbyUI.instance.LeftLobby();
+    }
 
     public enum DistanceFilter
     {
@@ -235,4 +213,35 @@ public class SteamworksUtils : MonoBehaviour
         FriendsOnly,
         Private
     }
+    #endregion
+
+    #region Server Stuff
+    public void StartGame()
+    {
+        Netick.Network.StartAsServer(4050, SandboxPrefab);
+    }
+    public void Connect()
+    {
+        var sandbox = Netick.Network.StartAsClient(4050, SandboxPrefab);
+        sandbox.Connect(4050, "127.0.0.1");
+    }
+    public void StartGameClientAndServer()
+    {
+        Netick.Network.StartAsServerAndClient(4050, SandboxPrefab);
+    }
+
+    public void StopGame()
+    {
+        DisconnectFromServer();
+    }
+
+    public void DisconnectFromServer()
+    {
+        FindObjectOfType<Camera>().transform.SetParent(null);
+        Netick.Network.Shutdown();
+        foreach (NetworkObject go in FindObjectsOfType<NetworkObject>())
+            Destroy(go.gameObject);
+    }
+    #endregion
+
 }

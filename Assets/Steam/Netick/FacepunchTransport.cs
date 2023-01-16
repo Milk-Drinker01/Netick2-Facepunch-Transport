@@ -149,8 +149,10 @@ namespace Netick.Transport
 
         void IConnectionManager.OnDisconnected(ConnectionInfo info)
         {
+            NetworkPeer.OnDisconnected(InternalConnections[_steamConnection.Connection]);
             InternalConnections.Clear();
             clientToServerConnection = null;
+            SteamworksUtils.instance.DisconnectFromServer();
         }
 
         unsafe void IConnectionManager.OnMessage(IntPtr data, int size, long messageNum, long recvTime, int channel)
