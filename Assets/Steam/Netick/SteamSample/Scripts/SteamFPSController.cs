@@ -100,7 +100,7 @@ namespace Netick.Examples.Steam
                 if (numSpheres > 480)
                     return;
                 numSpheres++;
-                Debug.LogError($"{numSpheres} have been spawned so far");
+                Debug.Log($"{numSpheres} spheres have been spawned so far");
                 var ball = Sandbox.NetworkInstantiate(ballPrefab, transform.position + transform.forward + transform.up, Quaternion.identity);
                 ball.GetComponent<Rigidbody>().AddForce(transform.forward * _ShootForce, ForceMode.Impulse);
             }
