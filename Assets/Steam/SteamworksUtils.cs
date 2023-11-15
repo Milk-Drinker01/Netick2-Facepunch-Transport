@@ -1,4 +1,5 @@
 ﻿using Netick;
+using Netick.Unity;
 using Steamworks;
 using Steamworks.Data;
 using Steamworks.ServerList;
@@ -26,7 +27,9 @@ public class SteamworksUtils : MonoBehaviour
     [SerializeField] bool _steamEnabled = false;
 
     [Header("Netick Settings")]
+    [SerializeField] NetworkTransportProvider Transport;
     [SerializeField] GameObject SandboxPrefab;
+    [SerializeField] int Port = 4050;
 
     public static SteamId SteamID => SteamClient.SteamId;
     public void Awake()
@@ -223,16 +226,18 @@ public class SteamworksUtils : MonoBehaviour
     #region Server Stuff
     public void StartGame()
     {
-        Netick.Network.StartAsServer(4050, SandboxPrefab);
+        Netick.Unity.Network.StartAsServer(Transport, Port, SandboxPrefab);
     }
+
     public void Connect()
     {
-        var sandbox = Netick.Network.StartAsClient(4050, SandboxPrefab);
-        sandbox.Connect(4050, "127.0.0.1");
+        var sandbox = Netick.Unity.Network.StartAsClient(Transport, Port, SandboxPrefab);
+        sandbox.Connect(Port, "127.0.0.1");
     }
+
     public void StartGameClientAndServer()
     {
-        Netick.Network.StartAsServerAndClient(4050, SandboxPrefab);
+        Netick.Unity.Network.StartAsServerAndClient(Transport, Port, SandboxPrefab);
     }
 
     public void StopGame()
@@ -243,7 +248,7 @@ public class SteamworksUtils : MonoBehaviour
     public void DisconnectFromServer()
     {
         FindObjectOfType<Camera>().transform.SetParent(null);
-        Netick.Network.Shutdown();
+        Netick.Unity.Network.Shutdown();
         foreach (NetworkObject go in FindObjectsOfType<NetworkObject>())
             Destroy(go.gameObject);
     }

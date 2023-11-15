@@ -4,39 +4,51 @@ using System.Collections.Generic;
 using UnityEngine;
 using Steamworks;
 using Steamworks.Data;
+using Netick.Unity;
 
 namespace Netick.Transport
 {
-
     [CreateAssetMenu(fileName = "FacepunchTransport", menuName = "Netick/Transport/FacepunchTransport", order = 2)]
+    public class FacepunchTransportProvider : NetworkTransportProvider
+    {
+        public override NetworkTransport MakeTransportInstance() => new FacepunchTransport();
+    }
+
     public class FacepunchTransport : NetworkTransport, ISocketManager, IConnectionManager
     {
         SocketManager _steamworksServer;
 
         ConnectionManager _steamConnection;
 
-        static Dictionary<Connection, FacepunchConnection> InternalConnections = new Dictionary<Connection, FacepunchConnection>();
+        static Dictionary<Steamworks.Data.Connection, FacepunchConnection> InternalConnections = new Dictionary<Steamworks.Data.Connection, FacepunchConnection>();
 
-        byte[] ReceiveData = new byte[1200];
+        private BitBuffer _buffer;
+        //byte[] ReceiveData = new byte[1200];
 
-        public class FacepunchConnection : NetickConnection
+        public class FacepunchConnection : TransportConnection
         {
 
-            public Connection Connection { get; set; }
+            public Steamworks.Data.Connection Connection { get; set; }
 
             public override int Mtu => 1200;
 
-            public override IPEndPoint EndPoint => new IPEndPoint(IPAddress.Any, 4050);
+            public override IEndPoint EndPoint => new IPEndPoint(IPAddress.Any, 4050).ToNetickEndPoint();
 
-            public override void Send(byte[] data, int length)
+            public unsafe override void Send(IntPtr data, int length)
             {
                 //Debug.Log($"SENDING A {length} BYTE PACKET");
 
-                Connection.SendMessage(data, 0, length, SendType.Unreliable);
+                Connection.SendMessage(data, length, SendType.Unreliable);
             }
         }
 
         public bool Server = false;
+
+        public override void Init()
+        {
+            Debug.Log("initializing");
+            _buffer = new BitBuffer(createChunks: false);
+        }
 
         public override void Run(RunMode mode, int port)
         {
@@ -72,7 +84,7 @@ namespace Netick.Transport
             _steamConnection.Interface = this;
         }
 
-        public override void Disconnect(NetickConnection connection)
+        public override void Disconnect(TransportConnection connection)
         {
             SteamworksUtils.instance._lobby.Leave();
         }
@@ -90,12 +102,12 @@ namespace Netick.Transport
             }
         }
 
-        void ISocketManager.OnConnecting(Connection connection, ConnectionInfo info)
+        void ISocketManager.OnConnecting(Steamworks.Data.Connection connection, ConnectionInfo info)
         {
             connection.Accept();
         }
 
-        void ISocketManager.OnConnected(Connection connection, ConnectionInfo info)
+        void ISocketManager.OnConnected(Steamworks.Data.Connection connection, ConnectionInfo info)
         {
             var facepunchConnection = new FacepunchConnection();
 
@@ -108,24 +120,28 @@ namespace Netick.Transport
             NetworkPeer.OnConnected(InternalConnections[connection]);
         }
 
-        void ISocketManager.OnDisconnected(Connection connection, ConnectionInfo info)
+        void ISocketManager.OnDisconnected(Steamworks.Data.Connection connection, ConnectionInfo info)
         {
             InternalConnections.Remove(connection);
         }
 
-        unsafe void ISocketManager.OnMessage(Connection connection, NetIdentity identity, IntPtr data, int size, long messageNum, long recvTime, int channel)
+        unsafe void ISocketManager.OnMessage(Steamworks.Data.Connection connection, NetIdentity identity, IntPtr data, int size, long messageNum, long recvTime, int channel)
         {
-            //Debug.Log($"{size} PACKET SIZE_");
+            //Debug.Log($"RECEIVED PACKET SIZE: {size}");
 
-            byte* b = (byte*)data;
+            byte* ptr = (byte*)data;
+            _buffer.SetFrom(ptr, size, size);
+            NetworkPeer.Receive(InternalConnections[connection], _buffer);
 
-            for (int ix = 0; ix < size; ++ix)
-            {
-                ReceiveData[ix] = *b;
-                b++;
-            }
+            //byte* b = (byte*)data;
 
-            NetworkPeer.Receive(InternalConnections[connection], ReceiveData, size);
+            //for (int ix = 0; ix < size; ++ix)
+            //{
+            //    ReceiveData[ix] = *b;
+            //    b++;
+            //}
+
+            //NetworkPeer.Receive(InternalConnections[connection], ReceiveData, size);
         }
 
         void IConnectionManager.OnConnecting(ConnectionInfo info)
@@ -149,7 +165,8 @@ namespace Netick.Transport
 
         void IConnectionManager.OnDisconnected(ConnectionInfo info)
         {
-            NetworkPeer.OnDisconnected(InternalConnections[_steamConnection.Connection]);
+            TransportDisconnectReason reason = info.EndReason == NetConnectionEnd.Remote_Timeout ? TransportDisconnectReason.Timeout : TransportDisconnectReason.Shutdown;
+            NetworkPeer.OnDisconnected(InternalConnections[_steamConnection.Connection], reason);
             InternalConnections.Clear();
             clientToServerConnection = null;
             SteamworksUtils.instance.DisconnectFromServer();
@@ -157,18 +174,11 @@ namespace Netick.Transport
 
         unsafe void IConnectionManager.OnMessage(IntPtr data, int size, long messageNum, long recvTime, int channel)
         {
-            //Debug.Log($"{size} PACKET SIZE_");
+            //Debug.Log($"RECEIVED PACKET SIZE: {size}");
 
-            byte* b = (byte*)data;
-
-            for (int ix = 0; ix < size; ++ix)
-            {
-                ReceiveData[ix] = *b;
-                b++;
-            }
-
-            //NetworkPeer.Receive(InternalConnections.Values.First(), ReceiveData, size);
-            NetworkPeer.Receive(clientToServerConnection, ReceiveData, size);
+            byte* ptr = (byte*)data;
+            _buffer.SetFrom(ptr, size, size);
+            NetworkPeer.Receive(clientToServerConnection, _buffer);
         }
 
     }

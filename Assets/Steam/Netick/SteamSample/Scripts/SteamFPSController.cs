@@ -1,8 +1,16 @@
 using UnityEngine;
 using Netick;
+using Netick.Unity;
 
 namespace Netick.Examples.Steam
 {
+    public struct SteamFPSInput : INetworkInput
+    {
+        public Vector2 YawPitch;
+        public Vector2 Movement;
+        public bool SprintInput;
+        public bool ShootInput;
+    }
     public class SteamFPSController : NetworkBehaviour
     {
         [SerializeField] private float  _movementSpeed = 2.5f;
@@ -45,12 +53,20 @@ namespace Netick.Examples.Steam
             if (!IsInputSource || !Sandbox.InputEnabled)
                 return;
 
+            var networkInput = Sandbox.GetInput<SteamFPSInput>();
+
+            networkInput.Movement = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+            networkInput.ShootInput |= Input.GetMouseButtonDown(0);
+            networkInput.SprintInput = Input.GetKey(KeyCode.LeftShift);
+
             Vector2 input = new Vector2(Input.GetAxisRaw("Mouse X") * _sensitivityX, Input.GetAxisRaw("Mouse Y") * _sensitivityY);
-            Sandbox.GetInput<SteamFPSInput>().YawPitch += input;
+            networkInput.YawPitch += input;
 
             // we apply the rotation in update too to have smooth camera control
             _camAngles = ClampAngles(_camAngles.x + input.x, _camAngles.y + input.y);
             ApplyRotations(_camAngles);
+
+            Sandbox.SetInput<SteamFPSInput>(networkInput);
         }
 
         public override void NetworkFixedUpdate()

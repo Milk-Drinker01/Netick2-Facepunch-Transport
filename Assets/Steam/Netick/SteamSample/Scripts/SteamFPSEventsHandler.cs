@@ -1,23 +1,24 @@
 ﻿using UnityEngine;
 using Netick;
+using Netick.Unity;
 
 namespace Netick.Examples.Steam
 {
-    public class SteamFPSEventsHandler : NetworkEventsListner
+    public class SteamFPSEventsHandler : NetworkEventsListener
     {
         public Transform    SpawnPos;
         public GameObject   PlayerPrefab;
         public bool         SpawnPlayerForHost = false;
 
         // This is called to read inputs.
-        public override void OnInput(NetworkSandbox sandbox)
-        {
-            var input         = sandbox.GetInput<SteamFPSInput>();
+        //public override void OnInput(NetworkSandbox sandbox)
+        //{
+        //    var input         = sandbox.GetInput<SteamFPSInput>();
 
-            input.Movement    = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-            input.ShootInput |= Input.GetMouseButtonDown(0);
-            input.SprintInput = Input.GetKey(KeyCode.LeftShift);
-        }
+        //    input.Movement    = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+        //    input.ShootInput |= Input.GetMouseButtonDown(0);
+        //    input.SprintInput = Input.GetKey(KeyCode.LeftShift);
+        //}
 
         // This is called on the server and the clients when the scene has been loaded.
         public override void OnSceneLoaded(NetworkSandbox sandbox)

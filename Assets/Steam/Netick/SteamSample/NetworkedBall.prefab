@@ -94,8 +94,8 @@ GameObject:
   - component: {fileID: 5294910979724857122}
   - component: {fileID: 5294910979724857121}
   - component: {fileID: 5294910979724857126}
-  - component: {fileID: 1879885552111250706}
-  - component: {fileID: -7994642814275871526}
+  - component: {fileID: 9158725208750898851}
+  - component: {fileID: 1022673633266396152}
   m_Layer: 0
   m_Name: NetworkedBall
   m_TagString: Untagged
@@ -148,7 +148,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &1879885552111250706
+--- !u!114 &9158725208750898851
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -157,36 +157,34 @@ MonoBehaviour:
   m_GameObject: {fileID: 5294910979724857127}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 1302032867, guid: 75145785847c5c04b8a66abc87a456e0, type: 3}
+  m_Script: {fileID: -1923973434, guid: da78c2c9df60edc4fb5f65b59fa57c41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Relevance: 1
-  RenderTransform: {fileID: 952461520194059389}
-  _interpolationSource: 0
-  TeleportDistance: 50
-  Settings: 3
-  PositionPrecision: 3
-  AllowNonAuthoritativeParenting: 0
-  TransformSpace: 0
---- !u!114 &-7994642814275871526
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5294910979724857127}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: -1698924404, guid: 75145785847c5c04b8a66abc87a456e0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  SceneId: -1
+  UseAoI: 0
   GlobalObjectIdHash: 0
-  _PrefabId: 0
-  Persistent: 0
+  SceneId: -1
+  _PrefabId: 5
   PrefabRoot: {fileID: 0}
   Children: []
   PrefabIndex: -1
+  Persistent: 0
   predictionMode: 0
-  UseAoI: 1
-  Relevance: 1
+--- !u!114 &1022673633266396152
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5294910979724857127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1266966383, guid: da78c2c9df60edc4fb5f65b59fa57c41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  RenderTransform: {fileID: 952461520194059389}
+  TeleportDistance: 50
+  PositionPrecision: 3
+  Settings: 3
+  AllowNonAuthoritativeParenting: 0
+  TransformSpace: 0
+  _interpolationSource: 0
