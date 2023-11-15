@@ -77,7 +77,7 @@ namespace Netick.Examples.Steam
             }
         }
 
-        int numSpheres = 0;
+        static int numSpheres = 0;
         private void MoveAndRotate(SteamFPSInput input)
         {
             // rotation
@@ -97,8 +97,10 @@ namespace Netick.Examples.Steam
 
             if (Sandbox.IsServer && input.ShootInput)
             {
+                if (numSpheres > 480)
+                    return;
                 numSpheres++;
-                Debug.Log($"{numSpheres} have been spawned so far");
+                Debug.LogError($"{numSpheres} have been spawned so far");
                 var ball = Sandbox.NetworkInstantiate(ballPrefab, transform.position + transform.forward + transform.up, Quaternion.identity);
                 ball.GetComponent<Rigidbody>().AddForce(transform.forward * _ShootForce, ForceMode.Impulse);
             }

@@ -122,6 +122,9 @@ namespace Netick.Transport
 
         void ISocketManager.OnDisconnected(Steamworks.Data.Connection connection, ConnectionInfo info)
         {
+            //TransportDisconnectReason reason = info.EndReason == NetConnectionEnd.Remote_Timeout ? TransportDisconnectReason.Timeout : TransportDisconnectReason.Shutdown;
+            //Debug.Log(reason);
+            NetworkPeer.OnDisconnected(InternalConnections[connection], TransportDisconnectReason.Timeout);
             InternalConnections.Remove(connection);
         }
 
@@ -165,8 +168,8 @@ namespace Netick.Transport
 
         void IConnectionManager.OnDisconnected(ConnectionInfo info)
         {
-            TransportDisconnectReason reason = info.EndReason == NetConnectionEnd.Remote_Timeout ? TransportDisconnectReason.Timeout : TransportDisconnectReason.Shutdown;
-            NetworkPeer.OnDisconnected(InternalConnections[_steamConnection.Connection], reason);
+            //TransportDisconnectReason reason = info.EndReason == NetConnectionEnd.Remote_Timeout ? TransportDisconnectReason.Timeout : TransportDisconnectReason.Shutdown;
+            NetworkPeer.OnDisconnected(InternalConnections[_steamConnection.Connection], TransportDisconnectReason.Timeout);
             InternalConnections.Clear();
             clientToServerConnection = null;
             SteamworksUtils.instance.DisconnectFromServer();
