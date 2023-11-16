@@ -39,6 +39,8 @@ namespace Netick.Examples.Steam
                 cam.transform.parent        = _cameraParent;
                 cam.transform.localPosition = Vector3.zero;
                 cam.transform.localRotation = Quaternion.identity;
+                if (Sandbox.IsServer)
+                    numSpheres = 0;
             }
         }
 
