@@ -26,6 +26,9 @@ public class SteamworksUtils : MonoBehaviour
     [Header("Steam Debug")]
     [SerializeField] bool _steamEnabled = false;
 
+    [Header("Steam Debug")]
+    public bool DisableNagleTimer = false;
+
     [Header("Netick Settings")]
     [SerializeField] NetworkTransportProvider Transport;
     [SerializeField] GameObject SandboxPrefab;
@@ -106,7 +109,7 @@ public class SteamworksUtils : MonoBehaviour
 
         //.Invoke(new Lobby(x.SteamIDLobby), x.IP, x.Port, x.SteamIDGameServer);
         SteamMatchmaking.OnLobbyGameCreated += (lobby, ip, port, serverGameId) => {
-            Debug.LogError("Game Lobby Created");
+            Debug.Log("Game Lobby Created");
         };
     }
     #region Lobby Stuff
@@ -227,6 +230,14 @@ public class SteamworksUtils : MonoBehaviour
     public void StartGame()
     {
         Netick.Unity.Network.StartAsServer(Transport, Port, SandboxPrefab);
+    }
+
+    public void ServerInitialized()
+    {
+        if (_lobby.Owner.Id == SteamID)
+        {
+            _lobby.SetGameServer(SteamID);
+        }
     }
 
     public void Connect()

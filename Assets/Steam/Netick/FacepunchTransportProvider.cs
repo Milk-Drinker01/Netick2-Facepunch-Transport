@@ -38,7 +38,7 @@ namespace Netick.Transport
             {
                 //Debug.Log($"SENDING A {length} BYTE PACKET");
 
-                Connection.SendMessage(data, length, SendType.Unreliable);
+                Connection.SendMessage(data, length, SteamworksUtils.instance.DisableNagleTimer ? SendType.Unreliable : SendType.NoNagle);
             }
         }
 
@@ -46,7 +46,7 @@ namespace Netick.Transport
 
         public override void Init()
         {
-            Debug.Log("initializing");
+            Debug.Log("Initializing Transport");
             _buffer = new BitBuffer(createChunks: false);
         }
 
@@ -59,6 +59,7 @@ namespace Netick.Transport
                     _steamworksServer.Interface = this;
 
                     Server = true;
+                    SteamworksUtils.instance.ServerInitialized();
                     break;
                 case RunMode.Client:
 
@@ -91,7 +92,6 @@ namespace Netick.Transport
 
         public override void PollEvents()
         {
-
             if (Server)
             {
                 _steamworksServer?.Receive();
@@ -178,6 +178,8 @@ namespace Netick.Transport
         unsafe void IConnectionManager.OnMessage(IntPtr data, int size, long messageNum, long recvTime, int channel)
         {
             //Debug.Log($"RECEIVED PACKET SIZE: {size}");
+            if (clientToServerConnection == null)
+                return;
 
             byte* ptr = (byte*)data;
             _buffer.SetFrom(ptr, size, size);
