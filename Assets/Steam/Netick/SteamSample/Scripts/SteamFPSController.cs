@@ -110,7 +110,7 @@ namespace Netick.Examples.Steam
 
 
         [OnChanged(nameof(YawPitch))]
-        private void OnNetCamAnglesChanged(Vector2 previous)
+        private void OnNetCamAnglesChanged(OnChangedData onChangedData)
         {
             ApplyRotations(YawPitch);
             _camAngles = YawPitch;

@@ -229,7 +229,7 @@ public class SteamworksUtils : MonoBehaviour
     #region Server Stuff
     public void StartGame()
     {
-        Netick.Unity.Network.StartAsServer(Transport, Port, SandboxPrefab);
+        Netick.Unity.Network.StartAsHost(Transport, Port, SandboxPrefab);
     }
 
     public void ServerInitialized()
