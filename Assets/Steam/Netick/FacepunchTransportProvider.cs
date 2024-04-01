@@ -73,8 +73,10 @@ namespace Netick.Transport
 
         public override void Shutdown()
         {
-            _steamConnection?.Close();
-            _steamworksServer?.Close();
+            if (_steamConnection != null)
+                _steamConnection.Close();
+            if (_steamworksServer != null)
+                _steamworksServer.Close();
             _steamworksServer = null;
             _steamConnection = null;
         }

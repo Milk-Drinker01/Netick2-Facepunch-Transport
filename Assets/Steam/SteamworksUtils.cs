@@ -246,10 +246,10 @@ public class SteamworksUtils : MonoBehaviour
         sandbox.Connect(Port, "127.0.0.1");
     }
 
-    public void StartGameClientAndServer()
-    {
-        Netick.Unity.Network.StartAsServerAndClient(Transport, Port, SandboxPrefab);
-    }
+    //public void StartGameClientAndServer()
+    //{
+    //    Netick.Unity.Network.StartAsServerAndClient(Transport, Port, SandboxPrefab);
+    //}
 
     public void StopGame()
     {
