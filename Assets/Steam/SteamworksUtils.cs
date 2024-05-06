@@ -111,11 +111,6 @@ public class SteamworksUtils : MonoBehaviour
 
     private void InitCallbacks()
     {
-        if (!SteamClient.IsValid || instance != this)
-        {
-            return;
-        }
-
         SteamNetworkingUtils.InitRelayNetworkAccess();
 
         SteamFriends.ListenForFriendsMessages = true;
