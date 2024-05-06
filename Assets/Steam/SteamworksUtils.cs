@@ -56,14 +56,13 @@ public class SteamworksUtils : MonoBehaviour
                 try
                 {
                     SteamClient.Init(AppID);
+                    StartCoroutine(EnsureValidity());
                     
                 }
                 catch (Exception)
                 {
                     Debug.LogWarning("something went wrong loading steam, make sure you have it open!");
                 }
-                
-                StartCoroutine(EnsureValidity());
             }
         }
         else
