@@ -2,6 +2,7 @@ using Netick.Unity;
 using Steamworks;
 using Steamworks.Data;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -33,7 +34,7 @@ public class SteamworksUtils : MonoBehaviour
     [SerializeField] int MinimumSlotsAvailable = 1;
 
     [Header("Steam Debug")]
-    [SerializeField] bool _steamEnabled;
+    [SerializeField] bool EnableSteam;
 
     public bool DisableNagleTimer;
     
@@ -50,24 +51,31 @@ public class SteamworksUtils : MonoBehaviour
         {
             instance = this;
 
-            if (_steamEnabled)
+            if (EnableSteam)
             {
                 try
                 {
                     SteamClient.Init(AppID);
-                    SteamNetworkingUtils.InitRelayNetworkAccess();
+                    
                 }
                 catch (Exception)
                 {
-                    Debug.Log("something went wrong loading steam, make sure you have it open!");
-                    _steamEnabled = false;
+                    Debug.LogWarning("something went wrong loading steam, make sure you have it open!");
                 }
+                
+                StartCoroutine(EnsureValidity());
             }
         }
         else
         {
             Destroy(this);
         }
+    }
+    
+    IEnumerator EnsureValidity(){
+        yield return new WaitUntil(() => SteamClient.IsValid);
+        Debug.Log("Steam Client Validated!");
+        InitCallbacks();
     }
 
     void OnDestroy()
@@ -76,13 +84,10 @@ public class SteamworksUtils : MonoBehaviour
             SteamClient.Shutdown();
     }
 
-    void Start()
+    void InitCallbacks()
     {
-        if (!SteamClient.IsValid || instance != this)
-        {
-            return;
-        }
-
+        SteamNetworkingUtils.InitRelayNetworkAccess();
+        
         SteamFriends.ListenForFriendsMessages = true;
 
         SteamFriends.OnGameLobbyJoinRequested += async (lobby, steamId) => {
@@ -163,21 +168,10 @@ public class SteamworksUtils : MonoBehaviour
 
         foreach (var lobby in lobbies)
         {
-            if (lobby.GetData("GameName") == GameName && !(Matches.Contains(lobby)) && lobby.MemberCount != 0)
+            if (!Matches.Contains(lobby) && lobby.MemberCount != 0)
                 Matches.Add(lobby);
         }
-
-        if (Matches.Count == 0)
-        {
-            //you might want to create a public lobby if none are found in the search
-            //CreateLobby(0);
-        }
-        else
-        {
-            //or you might want to join the first match found automatically
-            //await SteamMatchmaking.JoinLobbyAsync(Matches.First().Id);
-        }
-
+        
         OnLobbySearchFinished?.Invoke(Matches);
     }
 
@@ -258,12 +252,12 @@ public class SteamworksUtils : MonoBehaviour
     {
         if (!CurrentLobby.IsOwnedBy(SteamID))
         {
-            Debug.Log("you cant start a server, you dont own the lobby");
+            Debug.LogWarning("you cant start a server, you dont own the lobby");
             return;
         }
         if (Network.IsRunning)
         {
-            Debug.Log("a game server is already running");
+            Debug.LogWarning("a game server is already running");
             return;
         }
             
@@ -292,7 +286,7 @@ public class SteamworksUtils : MonoBehaviour
         SteamId serverID = 0;
         if (!CurrentLobby.GetGameServer(ref ip, ref port, ref serverID) || serverID == 0)
         {
-            Debug.Log("Trying to connect to the lobbys server, but one has not been assigned");
+            Debug.LogWarning("Trying to connect to the lobbys server, but one has not been assigned");
             return;
         }
 
