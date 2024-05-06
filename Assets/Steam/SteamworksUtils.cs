@@ -7,10 +7,26 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Events;
 
+[System.Serializable]
+public class SteamLobbySearchEvent : UnityEvent<List<Lobby>>
+{
+}
+[System.Serializable]
+public class SteamLobbyJoinedEvent : UnityEvent<Lobby>
+{
+}
+
+[DefaultExecutionOrder(-50)]
 public class SteamworksUtils : MonoBehaviour
 {
     public static SteamworksUtils instance;
+    public static SteamLobbyJoinedEvent OnLobbyEnteredEvent;
+    public static UnityEvent OnLobbyLeftEvent;
+    public static UnityEvent OnLobbySearchStart;
+    public static SteamLobbySearchEvent OnLobbySearchFinished;
+    public static UnityEvent OnGameServerShutdown;
 
     [SerializeField] uint AppID = 480;
 
@@ -23,10 +39,14 @@ public class SteamworksUtils : MonoBehaviour
 
     [SerializeField] int MinimumSlotsAvailable = 1;
 
+    [Header("Lobby Host Settings")]
+    [SerializeField] int NumberOfSlots = 16;
+
+    public Lobby CurrentLobby;
+
     [Header("Steam Debug")]
     [SerializeField] bool _steamEnabled = false;
 
-    [Header("Steam Debug")]
     public bool DisableNagleTimer = false;
 
     [Header("Netick Settings")]
@@ -35,11 +55,17 @@ public class SteamworksUtils : MonoBehaviour
     [SerializeField] int Port = 4050;
 
     public static SteamId SteamID => SteamClient.SteamId;
+
     public void Awake()
     {
         if (instance == null)
         {
             instance = this;
+            OnLobbyEnteredEvent = new SteamLobbyJoinedEvent();
+            OnLobbyLeftEvent = new UnityEvent();
+            OnLobbySearchStart = new UnityEvent();
+            OnLobbySearchFinished = new SteamLobbySearchEvent();
+            OnGameServerShutdown = new UnityEvent();
 
             if (_steamEnabled)
             {
@@ -63,12 +89,13 @@ public class SteamworksUtils : MonoBehaviour
 
     private void OnDestroy()
     {
-        SteamClient.Shutdown();
+        if (instance == this)
+            SteamClient.Shutdown();
     }
 
     private void Start()
     {
-        if (!SteamClient.IsValid)
+        if (!SteamClient.IsValid || instance != this)
         {
             return;
         }
@@ -86,9 +113,9 @@ public class SteamworksUtils : MonoBehaviour
         };
 
         SteamMatchmaking.OnLobbyEntered += (lobby) => {
-            Debug.Log($"You joined {lobby.GetData("LobbyName")}'s fucking lobby.");
-            _lobby = lobby;
-            Netick.Examples.Steam.LobbyUI.instance.JoinedLobby(_lobby.IsOwnedBy(SteamClient.SteamId));
+            Debug.Log($"You joined {lobby.GetData("LobbyName")}");
+            CurrentLobby = lobby;
+            OnLobbyEnteredEvent.Invoke(lobby);
         };
 
         SteamMatchmaking.OnLobbyMemberLeave += (lobby, friend) => {
@@ -113,8 +140,7 @@ public class SteamworksUtils : MonoBehaviour
         };
     }
     #region Lobby Stuff
-
-    public Lobby _lobby;
+    
     LobbyType _lobbyType;
     List<Lobby> Matches = new List<Lobby>();
     public async void Search()
@@ -132,7 +158,9 @@ public class SteamworksUtils : MonoBehaviour
 
             default:                        lobbies = await SteamMatchmaking.LobbyList.WithSlotsAvailable(MinimumSlotsAvailable).WithKeyValue("GameName", GameName).RequestAsync(); break;
         }
-        
+
+        Matches.Clear();
+        OnLobbySearchStart.Invoke();
 
         if (lobbies == null)
         {
@@ -141,14 +169,10 @@ public class SteamworksUtils : MonoBehaviour
             return;
         }
 
-        Matches.Clear();
-
-        Netick.Examples.Steam.LobbyUI.instance.ClearLobbyList();
-
-        foreach (var item in lobbies)
+        foreach (var lobby in lobbies)
         {
-            if (item.GetData("GameName") == GameName && !(Matches.Contains(item) || item.MemberCount == 0))
-                Matches.Add(item);
+            if (lobby.GetData("GameName") == GameName && !(Matches.Contains(lobby)) && lobby.MemberCount != 0)
+                Matches.Add(lobby);
         }
 
         if (Matches.Count == 0)
@@ -162,7 +186,7 @@ public class SteamworksUtils : MonoBehaviour
             //await SteamMatchmaking.JoinLobbyAsync(Matches.First().Id);
         }
 
-        Netick.Examples.Steam.LobbyUI.instance.UpdateLobbyList(Matches);
+        OnLobbySearchFinished.Invoke(Matches);
     }
 
     public void CreateLobby(int lobbyType)
@@ -175,13 +199,15 @@ public class SteamworksUtils : MonoBehaviour
     void OnLobbyCreated(Result status, Lobby lobby)
     {
         lobby.SetData("GameName", GameName);
-        lobby.SetData("LobbyName", SteamClient.Name);
+        lobby.SetData("LobbyName", $"{SteamClient.Name}'s lobby." );
         lobby.SetJoinable(true);
-        lobby.MaxMembers = 16;
+        //NetickConfig config = Resources.Load<NetickConfig>("netickConfig");
+        //lobby.MaxMembers = config.GetMaxPlayers;
+        lobby.MaxMembers = NumberOfSlots;
 
-        _lobby = lobby;
+        CurrentLobby = lobby;
 
-        Debug.Log("lobby " + lobby.Id + " was created");
+        Debug.Log($"lobby {lobby.Id} was created");
 
         switch (_lobbyType)
         {
@@ -198,16 +224,18 @@ public class SteamworksUtils : MonoBehaviour
                 break;
         }
     }
+
     public static async Task JoinLobby(ulong id)
     {
         await SteamMatchmaking.JoinLobbyAsync(id);
     }
+
     public void LeaveLobby()
     {
         Debug.Log("leaving lobby");
-        _lobby.Leave();
+        CurrentLobby.Leave();
         DisconnectFromServer();
-        Netick.Examples.Steam.LobbyUI.instance.LeftLobby();
+        OnLobbyLeftEvent.Invoke();
     }
 
     public enum DistanceFilter
@@ -227,42 +255,36 @@ public class SteamworksUtils : MonoBehaviour
     #endregion
 
     #region Server Stuff
-    public void StartGame()
+    public void StartGameServer()
     {
         Netick.Unity.Network.StartAsHost(Transport, Port, SandboxPrefab);
     }
 
-    public void ServerInitialized()
+    public void GameServerInitialized()
     {
-        if (_lobby.Owner.Id == SteamID)
+        if (CurrentLobby.Owner.Id == SteamID)
         {
-            _lobby.SetGameServer(SteamID);
+            CurrentLobby.SetGameServer(SteamID);
         }
     }
 
-    public void Connect()
-    {
-        var sandbox = Netick.Unity.Network.StartAsClient(Transport, Port, SandboxPrefab);
-        sandbox.Connect(Port, "127.0.0.1");
-    }
-
-    //public void StartGameClientAndServer()
-    //{
-    //    Netick.Unity.Network.StartAsServerAndClient(Transport, Port, SandboxPrefab);
-    //}
-
-    public void StopGame()
+    public void StopGameServer()
     {
         DisconnectFromServer();
     }
+    #endregion
 
-    public void DisconnectFromServer()
+    #region Client Stuff
+    public void ConnectToServer()
     {
-        FindObjectOfType<Camera>().transform.SetParent(null);
-        Netick.Unity.Network.Shutdown();
-        foreach (NetworkObject go in FindObjectsOfType<NetworkObject>())
-            Destroy(go.gameObject);
+        var sandbox = Netick.Unity.Network.StartAsClient(Transport, Port, SandboxPrefab);
+        sandbox.Connect(Port, CurrentLobby.Owner.Id.ToString());
     }
     #endregion
 
+    public void DisconnectFromServer()
+    {
+        OnGameServerShutdown.Invoke();
+        Netick.Unity.Network.Shutdown();
+    }
 }

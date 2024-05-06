@@ -1596,6 +1596,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
   m_SortingLayerID: 0
   m_SortingOrder: 0
@@ -3611,7 +3612,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SpawnPos: {fileID: 10129275}
   PlayerPrefab: {fileID: 7011933354638177272, guid: d66d5a97430d3364890108321123b309, type: 3}
-  SpawnPlayerForHost: 1
 --- !u!1 &1318413499
 GameObject:
   m_ObjectHideFlags: 0
@@ -4071,7 +4071,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: START GAEM
+  m_text: START GAME SERVER
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -7769,6 +7769,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
   m_SortingLayerID: 0
   m_SortingOrder: 0
@@ -8318,6 +8319,7 @@ MonoBehaviour:
   GameName: Your Games Name
   LobbySearchDistance: 3
   MinimumSlotsAvailable: 1
+  NumberOfSlots: 16
   _steamEnabled: 1
   DisableNagleTimer: 0
   Transport: {fileID: 11400000, guid: 944cf81419407044f987b12d9aeafaf3, type: 2}

@@ -19,7 +19,13 @@ namespace Netick.Examples.Steam
         private void Awake()
         {
             if (instance == null)
+            {
                 instance = this;
+                SteamworksUtils.OnLobbyLeftEvent.AddListener(LeftLobby);
+                SteamworksUtils.OnLobbySearchStart.AddListener(ClearLobbyList);
+                SteamworksUtils.OnLobbySearchFinished.AddListener(UpdateLobbyList);
+                SteamworksUtils.OnGameServerShutdown.AddListener(ResetLobbyCamera);
+            }
             else
                 Destroy(gameObject);
         }
@@ -54,18 +60,19 @@ namespace Netick.Examples.Steam
 
         public void UpdateLobbyList(List<Lobby> LobbyList)
         {
-            foreach (var match in LobbyList)
+            foreach (var lobby in LobbyList)
             {
                 var lobbyGO = Instantiate(LobbyInfoPrefab, LobbyContent.transform);
-                lobbyGO.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = $"{match.GetData("LobbyName")}'s Fucking lobby";
+                lobbyGO.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = lobby.GetData("LobbyName");
                 lobbyGO.GetComponent<Button>().onClick.AddListener(async () => {
-                    await SteamworksUtils.JoinLobby(match.Id);
+                    await SteamworksUtils.JoinLobby(lobby.Id);
                 });
             }
         }
 
-        public void JoinedLobby(bool IsOwner)
+        public void JoinedLobby(Lobby lobby)
         {
+            bool IsOwner = lobby.IsOwnedBy(SteamworksUtils.SteamID);
             if (IsOwner)
             {
                 LobbyMenu.transform.GetChild(1).GetComponent<Button>().interactable = true;
@@ -83,6 +90,11 @@ namespace Netick.Examples.Steam
         {
             SearchMenu.SetActive(true);
             LobbyMenu.SetActive(false);
+        }
+
+        public void ResetLobbyCamera()
+        {
+            FindObjectOfType<Camera>().transform.SetParent(null);
         }
     }
 }

@@ -55,19 +55,19 @@ namespace Netick.Transport
             switch (mode)
             {
                 case RunMode.Server:
-                    _steamworksServer = SteamNetworkingSockets.CreateRelaySocket<SocketManager>(0);
-                    _steamworksServer.Interface = this;
+                    {
+                        _steamworksServer = SteamNetworkingSockets.CreateRelaySocket<SocketManager>(port);
+                        _steamworksServer.Interface = this;
 
-                    Server = true;
-                    SteamworksUtils.instance.ServerInitialized();
-                    break;
+                        Server = true;
+                        SteamworksUtils.instance.GameServerInitialized();
+                        break;
+                    }
                 case RunMode.Client:
-
-                    Server = false;
-                    break;
-                default:
-                    Debug.LogError("YOU FUCKED UP");
-                    break;
+                    {
+                        Server = false;
+                        break;
+                    }
             }
         }
 
@@ -83,13 +83,15 @@ namespace Netick.Transport
 
         public override void Connect(string address, int port, byte[] connectionData, int connectionDataLen)
         {
-            _steamConnection = SteamNetworkingSockets.ConnectRelay<ConnectionManager>(SteamworksUtils.instance._lobby.Owner.Id, 0);
+            if (!ulong.TryParse(address, out ulong ID))
+                return;
+            _steamConnection = SteamNetworkingSockets.ConnectRelay<ConnectionManager>(ID, port);
             _steamConnection.Interface = this;
         }
 
         public override void Disconnect(TransportConnection connection)
         {
-            SteamworksUtils.instance._lobby.Leave();
+            SteamworksUtils.instance.CurrentLobby.Leave();
         }
 
         public override void PollEvents()
@@ -104,6 +106,7 @@ namespace Netick.Transport
             }
         }
 
+        #region SERVER
         void ISocketManager.OnConnecting(Steamworks.Data.Connection connection, ConnectionInfo info)
         {
             connection.Accept();
@@ -117,7 +120,7 @@ namespace Netick.Transport
 
             InternalConnections.Add(connection, facepunchConnection);
 
-            Debug.Log("Someone connected");
+            Debug.Log("Someone connected to the server");
 
             NetworkPeer.OnConnected(InternalConnections[connection]);
         }
@@ -148,7 +151,9 @@ namespace Netick.Transport
 
             //NetworkPeer.Receive(InternalConnections[connection], ReceiveData, size);
         }
+        #endregion
 
+        #region CLIENT
         void IConnectionManager.OnConnecting(ConnectionInfo info)
         {
 
@@ -187,6 +192,6 @@ namespace Netick.Transport
             _buffer.SetFrom(ptr, size, size);
             NetworkPeer.Receive(clientToServerConnection, _buffer);
         }
-
+        #endregion
     }
 }
