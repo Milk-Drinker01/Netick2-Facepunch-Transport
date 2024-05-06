@@ -24,11 +24,11 @@ namespace Netick.Examples.Steam
             if (instance == null)
             {
                 instance = this;
-                SteamworksUtils.OnLobbyEnteredEvent.AddListener(JoinedLobby);
-                SteamworksUtils.OnLobbyLeftEvent.AddListener(LeftLobby);
-                SteamworksUtils.OnLobbySearchStart.AddListener(ClearLobbyList);
-                SteamworksUtils.OnLobbySearchFinished.AddListener(UpdateLobbyList);
-                SteamworksUtils.OnGameServerShutdown.AddListener(ResetLobbyCamera);
+                SteamworksUtils.OnLobbyEnteredEvent += JoinedLobby;
+                SteamworksUtils.OnLobbyLeftEvent += LeftLobby;
+                SteamworksUtils.OnLobbySearchStart += ClearLobbyList;
+                SteamworksUtils.OnLobbySearchFinished += UpdateLobbyList;
+                SteamworksUtils.OnGameServerShutdown += ResetLobbyCamera;
             }
             else
                 Destroy(gameObject);

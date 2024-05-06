@@ -34,7 +34,7 @@ public class SteamworksUtils : MonoBehaviour
     [SerializeField] int MinimumSlotsAvailable = 1;
 
     [Header("Steam Debug")]
-    [SerializeField] bool EnableSteam;
+    [SerializeField] bool EnableSteam = true;
 
     public bool DisableNagleTimer;
     

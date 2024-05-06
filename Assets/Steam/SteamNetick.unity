@@ -7509,7 +7509,7 @@ MonoBehaviour:
   GameName: Your Games Name
   LobbySearchDistance: 3
   MinimumSlotsAvailable: 1
-  _steamEnabled: 1
+  EnableSteam: 1
   DisableNagleTimer: 0
   Transport: {fileID: 11400000, guid: 944cf81419407044f987b12d9aeafaf3, type: 2}
   SandboxPrefab: {fileID: 0}
