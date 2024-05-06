@@ -7,7 +7,6 @@
   - Karrar: Netick
  
  TODO:
-  - better character controller
   - voice chat
  
  Created with Unity 2021.3.16
