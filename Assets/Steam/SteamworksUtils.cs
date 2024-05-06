@@ -143,7 +143,8 @@ public class SteamworksUtils : MonoBehaviour
 
         //.Invoke(new Lobby(x.SteamIDLobby), x.IP, x.Port, x.SteamIDGameServer);
         SteamMatchmaking.OnLobbyGameCreated += (lobby, ip, port, serverGameId) => {
-            Debug.Log("A server has been associated with this Lobby");
+            if (serverGameId != 0)
+                Debug.Log("A server has been associated with this Lobby");
         };
     }
     #region Lobby Stuff
@@ -286,8 +287,8 @@ public class SteamworksUtils : MonoBehaviour
     {
         uint ip = 0;
         ushort port = 4050;
-        SteamId id = CurrentLobby.Owner.Id;
-        if (!CurrentLobby.GetGameServer(ref ip, ref port, ref id))
+        SteamId serverID = 0;
+        if (!CurrentLobby.GetGameServer(ref ip, ref port, ref serverID) || serverID == 0)
         {
             Debug.Log("Trying to connect to the lobbys server, but one has not been assigned");
             return;
@@ -311,7 +312,9 @@ public class SteamworksUtils : MonoBehaviour
 
     public void OnNetickShutdown()
     {
+        SteamId invalidID;
+        invalidID.Value = 0;
         if (CurrentLobby.IsOwnedBy(SteamID))
-            CurrentLobby.SetGameServer(0);
+            CurrentLobby.SetGameServer("127.0.0.1", 0);
     }
 }
