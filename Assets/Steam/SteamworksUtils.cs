@@ -1,13 +1,15 @@
-﻿using Netick;
-using Netick.Unity;
-using Steamworks;
-using Steamworks.Data;
-using Steamworks.ServerList;
-using System;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
+using Netick;
+using Netick.Unity;
+using Steamworks;
+using Steamworks.Data;
+using Steamworks.ServerList;
+
 
 [System.Serializable]
 public class SteamLobbySearchEvent : UnityEvent<List<Lobby>>
@@ -51,7 +53,7 @@ public class SteamworksUtils : MonoBehaviour
 
     [Header("Steam Debug")]
 
-    [SerializeField] bool _steamEnabled = false;
+    [SerializeField] bool EnableSteam = true;
 
     public bool DisableNagleTimer = false;
 
@@ -75,17 +77,16 @@ public class SteamworksUtils : MonoBehaviour
             OnLobbySearchFinished = new SteamLobbySearchEvent();
             OnGameServerShutdown = new UnityEvent();
 
-            if (_steamEnabled)
+            if (EnableSteam)
             {
                 try
                 {
                     SteamClient.Init(AppID);
-                    SteamNetworkingUtils.InitRelayNetworkAccess();
+                    StartCoroutine(EnsureValidity());
                 }
                 catch (Exception)
                 {
                     Debug.Log("something went wrong loading steam, make sure you have it open!");
-                    _steamEnabled = false;
                 }
             }
         }
@@ -101,12 +102,21 @@ public class SteamworksUtils : MonoBehaviour
             SteamClient.Shutdown();
     }
 
-    private void Start()
+    private IEnumerator EnsureValidity()
+    {
+        yield return new WaitUntil(() => SteamClient.IsValid);
+        Debug.Log("Steam Client Validated!");
+        InitCallbacks();
+    }
+
+    private void InitCallbacks()
     {
         if (!SteamClient.IsValid || instance != this)
         {
             return;
         }
+
+        SteamNetworkingUtils.InitRelayNetworkAccess();
 
         SteamFriends.ListenForFriendsMessages = true;
 
