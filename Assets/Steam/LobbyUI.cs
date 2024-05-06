@@ -21,6 +21,7 @@ namespace Netick.Examples.Steam
             if (instance == null)
             {
                 instance = this;
+                SteamworksUtils.OnLobbyEnteredEvent.AddListener(JoinedLobby);
                 SteamworksUtils.OnLobbyLeftEvent.AddListener(LeftLobby);
                 SteamworksUtils.OnLobbySearchStart.AddListener(ClearLobbyList);
                 SteamworksUtils.OnLobbySearchFinished.AddListener(UpdateLobbyList);
