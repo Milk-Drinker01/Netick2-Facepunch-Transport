@@ -16,6 +16,9 @@ namespace Netick.Examples.Steam
         public GameObject LobbyMenu;
         public GameObject LobbyContent;
         public GameObject LobbyInfoPrefab;
+        public Button StartServerButton;
+        public Button ConnectToServerButton;
+        public Button StopServerButton;
         private void Awake()
         {
             if (instance == null)
@@ -32,13 +35,43 @@ namespace Netick.Examples.Steam
         }
 
         bool locked;
+        private bool WasRunningLastFrame;
         private void Update()
         {
             if (Input.GetKeyDown(KeyCode.Escape))
-                toggleCursor();
+                ToggleCursor();
+
+            bool IsRunning = Netick.Unity.Network.IsRunning;
+
+            if (WasRunningLastFrame != IsRunning)
+            {
+                if (IsRunning)
+                {
+                    StartServerButton.interactable = false;
+                    ConnectToServerButton.interactable = false;
+                    StopServerButton.interactable = true;
+                }
+                else
+                {
+                    bool IsOwner = SteamworksUtils.CurrentLobby.IsOwnedBy(SteamworksUtils.SteamID);
+                    if (IsOwner)
+                    {
+                        StartServerButton.interactable = true;
+                        ConnectToServerButton.interactable = false;
+                    }
+                    else
+                    {
+                        StartServerButton.interactable = false;
+                        ConnectToServerButton.interactable = true;
+                    }
+                    StopServerButton.interactable = false;
+                }
+            }
+
+            WasRunningLastFrame = IsRunning;
         }
 
-        void toggleCursor()
+        void ToggleCursor()
         {
             locked = !locked;
             if (locked)
@@ -76,17 +109,18 @@ namespace Netick.Examples.Steam
             bool IsOwner = lobby.IsOwnedBy(SteamworksUtils.SteamID);
             if (IsOwner)
             {
-                LobbyMenu.transform.GetChild(1).GetComponent<Button>().interactable = true;
-                LobbyMenu.transform.GetChild(2).GetComponent<Button>().interactable = false;
+                StartServerButton.interactable = true;
+                ConnectToServerButton.interactable = false;
             }
             else
             {
-                LobbyMenu.transform.GetChild(1).GetComponent<Button>().interactable = false;
-                LobbyMenu.transform.GetChild(2).GetComponent<Button>().interactable = true;
+                StartServerButton.interactable = false;
+                ConnectToServerButton.interactable = true;
             }
             SearchMenu.SetActive(false);
             LobbyMenu.SetActive(true);
         }
+
         public void LeftLobby()
         {
             SearchMenu.SetActive(true);

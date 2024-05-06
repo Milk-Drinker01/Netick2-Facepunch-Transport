@@ -30,6 +30,7 @@ public class SteamworksUtils : MonoBehaviour
     public static Lobby CurrentLobby;
 
     [SerializeField] uint AppID = 480;
+    [SerializeField] bool AutoStartServerWithLobby = true;
 
     [Header("Lobby Host Settings")]
 
@@ -123,6 +124,9 @@ public class SteamworksUtils : MonoBehaviour
             Debug.Log($"You joined {lobby.GetData("LobbyName")}");
             CurrentLobby = lobby;
             OnLobbyEnteredEvent.Invoke(lobby);
+
+            if (AutoStartServerWithLobby && !lobby.IsOwnedBy(SteamID))
+                ConnectToGameServer();
         };
 
         SteamMatchmaking.OnLobbyMemberLeave += (lobby, friend) => {
@@ -145,6 +149,9 @@ public class SteamworksUtils : MonoBehaviour
         SteamMatchmaking.OnLobbyGameCreated += (lobby, ip, port, serverGameId) => {
             if (serverGameId != 0)
                 Debug.Log("A server has been associated with this Lobby");
+
+            if (AutoStartServerWithLobby && !lobby.IsOwnedBy(SteamID))
+                ConnectToGameServer();
         };
     }
     #region Lobby Stuff
@@ -231,6 +238,9 @@ public class SteamworksUtils : MonoBehaviour
             default:
                 break;
         }
+
+        if (AutoStartServerWithLobby)
+            StartGameServer();
     }
 
     public static async Task JoinLobby(ulong id)
@@ -265,6 +275,17 @@ public class SteamworksUtils : MonoBehaviour
     #region Server Stuff
     public void StartGameServer()
     {
+        if (!CurrentLobby.IsOwnedBy(SteamID))
+        {
+            Debug.Log("you cant start a server, you dont own the lobby");
+            return;
+        }
+        if (Netick.Unity.Network.IsRunning)
+        {
+            Debug.Log("a game server is already running");
+            return;
+        }
+            
         Netick.Unity.Network.StartAsHost(Transport, Port, SandboxPrefab);
     }
 
@@ -306,14 +327,13 @@ public class SteamworksUtils : MonoBehaviour
 
     public void DisconnectFromServer()
     {
+        Debug.Log("Game Server Shutdown");
         OnGameServerShutdown.Invoke();
         Netick.Unity.Network.Shutdown();
     }
 
     public void OnNetickShutdown()
     {
-        SteamId invalidID;
-        invalidID.Value = 0;
         if (CurrentLobby.IsOwnedBy(SteamID))
             CurrentLobby.SetGameServer("127.0.0.1", 0);
     }
