@@ -79,6 +79,7 @@ namespace Netick.Transport
                 _steamworksServer.Close();
             _steamworksServer = null;
             _steamConnection = null;
+            SteamworksUtils.instance.OnNetickShutdown();
         }
 
         public override void Connect(string address, int port, byte[] connectionData, int connectionDataLen)
@@ -91,7 +92,7 @@ namespace Netick.Transport
 
         public override void Disconnect(TransportConnection connection)
         {
-            SteamworksUtils.instance.CurrentLobby.Leave();
+            SteamworksUtils.instance.DisconnectedFromHostServer();
         }
 
         public override void PollEvents()

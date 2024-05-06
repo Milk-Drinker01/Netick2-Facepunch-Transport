@@ -1291,9 +1291,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 8372337168820357533}
-        m_TargetAssemblyTypeName: Assets.Steam_Networking.steam.SteamworksUtils,
-          Assembly-CSharp
-        m_MethodName: Connect
+        m_TargetAssemblyTypeName: SteamworksUtils, Assembly-CSharp
+        m_MethodName: ConnectToGameServer
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4206,7 +4205,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'LEAVE SERVER
+  m_text: 'STOP/LEAVE SERVER
 
 '
   m_isRightToLeft: 0
@@ -5265,9 +5264,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 8372337168820357533}
-        m_TargetAssemblyTypeName: Assets.Steam_Networking.steam.SteamworksUtils,
-          Assembly-CSharp
-        m_MethodName: StartGame
+        m_TargetAssemblyTypeName: SteamworksUtils, Assembly-CSharp
+        m_MethodName: StartGameServer
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5401,7 +5399,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 8372337168820357533}
         m_TargetAssemblyTypeName: SteamworksUtils, Assembly-CSharp
-        m_MethodName: StopGame
+        m_MethodName: StopGameServer
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

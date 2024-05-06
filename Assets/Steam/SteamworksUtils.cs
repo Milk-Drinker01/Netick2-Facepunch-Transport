@@ -27,8 +27,15 @@ public class SteamworksUtils : MonoBehaviour
     public static UnityEvent OnLobbySearchStart;
     public static SteamLobbySearchEvent OnLobbySearchFinished;
     public static UnityEvent OnGameServerShutdown;
+    public static Lobby CurrentLobby;
 
     [SerializeField] uint AppID = 480;
+
+    [Header("Lobby Host Settings")]
+
+    [SerializeField] int NumberOfSlots = 16;
+
+
 
     [Header("Lobby Search Settings")]
 
@@ -39,15 +46,15 @@ public class SteamworksUtils : MonoBehaviour
 
     [SerializeField] int MinimumSlotsAvailable = 1;
 
-    [Header("Lobby Host Settings")]
-    [SerializeField] int NumberOfSlots = 16;
 
-    public Lobby CurrentLobby;
 
     [Header("Steam Debug")]
+
     [SerializeField] bool _steamEnabled = false;
 
     public bool DisableNagleTimer = false;
+
+
 
     [Header("Netick Settings")]
     [SerializeField] NetworkTransportProvider Transport;
@@ -136,7 +143,7 @@ public class SteamworksUtils : MonoBehaviour
 
         //.Invoke(new Lobby(x.SteamIDLobby), x.IP, x.Port, x.SteamIDGameServer);
         SteamMatchmaking.OnLobbyGameCreated += (lobby, ip, port, serverGameId) => {
-            Debug.Log("Game Lobby Created");
+            Debug.Log("A server has been associated with this Lobby");
         };
     }
     #region Lobby Stuff
@@ -275,10 +282,24 @@ public class SteamworksUtils : MonoBehaviour
     #endregion
 
     #region Client Stuff
-    public void ConnectToServer()
+    public void ConnectToGameServer()
     {
+        uint ip = 0;
+        ushort port = 4050;
+        SteamId id = CurrentLobby.Owner.Id;
+        if (!CurrentLobby.GetGameServer(ref ip, ref port, ref id))
+        {
+            Debug.Log("Trying to connect to the lobbys server, but one has not been assigned");
+            return;
+        }
+
         var sandbox = Netick.Unity.Network.StartAsClient(Transport, Port, SandboxPrefab);
         sandbox.Connect(Port, CurrentLobby.Owner.Id.ToString());
+    }
+
+    public void DisconnectedFromHostServer()
+    {
+        Debug.Log("Disconnected");
     }
     #endregion
 
@@ -286,5 +307,11 @@ public class SteamworksUtils : MonoBehaviour
     {
         OnGameServerShutdown.Invoke();
         Netick.Unity.Network.Shutdown();
+    }
+
+    public void OnNetickShutdown()
+    {
+        if (CurrentLobby.IsOwnedBy(SteamID))
+            CurrentLobby.SetGameServer(0);
     }
 }
