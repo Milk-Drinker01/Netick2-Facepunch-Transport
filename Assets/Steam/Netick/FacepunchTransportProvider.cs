@@ -11,11 +11,32 @@ namespace Netick.Transport
     [CreateAssetMenu(fileName = "FacepunchTransport", menuName = "Netick/Transport/FacepunchTransport", order = 2)]
     public class FacepunchTransportProvider : NetworkTransportProvider
     {
-        public override NetworkTransport MakeTransportInstance() => new FacepunchTransport();
+        private FacepunchTransport transportInstance;
+
+        [Tooltip("ive found that No Nagle provides the best latency for me")]
+        [SerializeField] private SendType SteamDataSendType = SendType.NoNagle;
+        [Tooltip("Keep this off if you are using the NoNagle send type. turning this on disables the nagle timer.")]
+        [SerializeField] private bool FlushMessages = false;
+
+        public override NetworkTransport MakeTransportInstance() => transportInstance = new FacepunchTransport(SteamDataSendType, FlushMessages);
+
+#if UNITY_EDITOR
+        public void OnValidate()
+        {
+            FacepunchTransport.SteamSendType = SteamDataSendType;
+            FacepunchTransport.ForceFlush = FlushMessages;
+        }
+#endif
     }
 
     public class FacepunchTransport : NetworkTransport, ISocketManager, IConnectionManager
     {
+        public static event Action OnNetickShutdownEvent;
+        public static event Action OnNetickServerStarted;
+        public static event Action OnNetickClientStarted;
+        public static SendType SteamSendType = SendType.NoNagle;
+        public static bool ForceFlush = false;
+
         SocketManager _steamworksServer;
 
         ConnectionManager _steamConnection;
@@ -23,11 +44,15 @@ namespace Netick.Transport
         static Dictionary<Steamworks.Data.Connection, FacepunchConnection> InternalConnections = new Dictionary<Steamworks.Data.Connection, FacepunchConnection>();
 
         private BitBuffer _buffer;
-        //byte[] ReceiveData = new byte[1200];
+
+        public FacepunchTransport(SendType sendType, bool forceFlush)
+        {
+            SteamSendType = sendType;
+            ForceFlush = forceFlush;
+        }
 
         public class FacepunchConnection : TransportConnection
         {
-
             public Steamworks.Data.Connection Connection { get; set; }
 
             public override int Mtu => 1200;
@@ -38,11 +63,13 @@ namespace Netick.Transport
             {
                 //Debug.Log($"SENDING A {length} BYTE PACKET");
 
-                Connection.SendMessage(data, length, SteamworksUtils.instance.DisableNagleTimer ? SendType.Unreliable : SendType.NoNagle);
+                Connection.SendMessage(data, length, SteamSendType);
+                if (ForceFlush)
+                    Connection.Flush();
             }
         }
 
-        public bool Server = false;
+        public bool IsServer = false;
 
         public override void Init()
         {
@@ -59,13 +86,14 @@ namespace Netick.Transport
                         _steamworksServer = SteamNetworkingSockets.CreateRelaySocket<SocketManager>(port);
                         _steamworksServer.Interface = this;
 
-                        Server = true;
-                        SteamworksUtils.instance.GameServerInitialized();
+                        IsServer = true;
+                        OnNetickServerStarted.Invoke();
                         break;
                     }
                 case RunMode.Client:
                     {
-                        Server = false;
+                        IsServer = false;
+                        //OnNetickClientStarted.Invoke();
                         break;
                     }
             }
@@ -79,25 +107,12 @@ namespace Netick.Transport
                 _steamworksServer.Close();
             _steamworksServer = null;
             _steamConnection = null;
-            SteamworksUtils.instance.OnNetickShutdown();
-        }
-
-        public override void Connect(string address, int port, byte[] connectionData, int connectionDataLen)
-        {
-            if (!ulong.TryParse(address, out ulong ID))
-                return;
-            _steamConnection = SteamNetworkingSockets.ConnectRelay<ConnectionManager>(ID, port);
-            _steamConnection.Interface = this;
-        }
-
-        public override void Disconnect(TransportConnection connection)
-        {
-            SteamworksUtils.instance.DisconnectedFromHostServer();
+            OnNetickShutdownEvent.Invoke();
         }
 
         public override void PollEvents()
         {
-            if (Server)
+            if (IsServer)
             {
                 _steamworksServer?.Receive();
             }
@@ -155,6 +170,20 @@ namespace Netick.Transport
         #endregion
 
         #region CLIENT
+
+        public override void Connect(string address, int port, byte[] connectionData, int connectionDataLen)
+        {
+            if (!ulong.TryParse(address, out ulong ID))
+                return;
+            _steamConnection = SteamNetworkingSockets.ConnectRelay<ConnectionManager>(ID, port);
+            _steamConnection.Interface = this;
+        }
+
+        public override void Disconnect(TransportConnection connection)
+        {
+            //Debug.Log("Client: Disconnected from server");
+        }
+
         void IConnectionManager.OnConnecting(ConnectionInfo info)
         {
 
@@ -171,7 +200,6 @@ namespace Netick.Transport
             clientToServerConnection = facepunchConnection;
 
             NetworkPeer.OnConnected(InternalConnections[_steamConnection.Connection]);
-
         }
 
         void IConnectionManager.OnDisconnected(ConnectionInfo info)
@@ -180,7 +208,7 @@ namespace Netick.Transport
             NetworkPeer.OnDisconnected(InternalConnections[_steamConnection.Connection], TransportDisconnectReason.Timeout);
             InternalConnections.Clear();
             clientToServerConnection = null;
-            SteamworksUtils.instance.DisconnectFromServer();
+            Netick.Unity.Network.Shutdown();
         }
 
         unsafe void IConnectionManager.OnMessage(IntPtr data, int size, long messageNum, long recvTime, int channel)
