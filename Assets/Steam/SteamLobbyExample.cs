@@ -88,7 +88,6 @@ public class SteamLobbyExample : MonoBehaviour
 
         };
 
-        //.Invoke(new Lobby(x.SteamIDLobby), x.IP, x.Port, x.SteamIDGameServer);
         SteamMatchmaking.OnLobbyGameCreated += (lobby, ip, port, serverGameId) => {
             if (serverGameId != 0)
                 Debug.Log("A server has been associated with this Lobby");
@@ -103,11 +102,10 @@ public class SteamLobbyExample : MonoBehaviour
 
     LobbyType _lobbyType;
     List<Lobby> Matches = new List<Lobby>();
-    public async void Search()
+    public async void SearchPublicLobbies()
     {
         _lobbyType = LobbyType.Public;
 
-        //var lobbies = await SteamMatchmaking.LobbyList.WithSlotsAvailable(1).FilterDistanceWorldwide().WithKeyValue("GameName", GameName).RequestAsync();
         Lobby[] lobbies;
 
         LobbyQuery query = SteamMatchmaking.LobbyList.WithSlotsAvailable(MinimumSlotsAvailable).WithKeyValue("GameName", GameName);

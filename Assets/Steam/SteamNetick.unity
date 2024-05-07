@@ -7368,7 +7368,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 8372337168820357532}
         m_TargetAssemblyTypeName: SteamLobbyExample, Assembly-CSharp
-        m_MethodName: Search
+        m_MethodName: SearchPublicLobbies
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
