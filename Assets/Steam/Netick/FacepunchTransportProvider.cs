@@ -31,45 +31,9 @@ namespace Netick.Transport
 
     public class FacepunchTransport : NetworkTransport, ISocketManager, IConnectionManager
     {
-        private static Action _onNetickServerStarted;
-        public static event Action OnNetickServerStarted
-        {
-            add
-            {
-                _onNetickServerStarted -= value;
-                _onNetickServerStarted += value;
-            }
-            remove
-            {
-                _onNetickServerStarted -= value;
-            }
-        }
-        private static Action _onNetickClientStarted;
-        public static event Action OnNetickClientStarted
-        {
-            add
-            {
-                _onNetickClientStarted -= value;
-                _onNetickClientStarted += value;
-            }
-            remove
-            {
-                _onNetickClientStarted -= value;
-            }
-        }
-        private static Action _onNetickShutdownEvent;
-        public static event Action OnNetickShutdownEvent
-        {
-            add
-            {
-                _onNetickShutdownEvent -= value;
-                _onNetickShutdownEvent += value;
-            }
-            remove
-            {
-                _onNetickShutdownEvent -= value;
-            }
-        }
+        public static event Action OnNetickServerStarted;
+        public static event Action OnNetickClientStarted;
+        public static event Action OnNetickShutdownEvent;
 
         public static SendType SteamSendType = SendType.NoNagle;
         public static bool ForceFlush = false;
@@ -124,13 +88,13 @@ namespace Netick.Transport
                         _steamworksServer.Interface = this;
 
                         IsServer = true;
-                        _onNetickServerStarted?.Invoke();
+                        OnNetickServerStarted?.Invoke();
                         break;
                     }
                 case RunMode.Client:
                     {
                         IsServer = false;
-                        _onNetickClientStarted?.Invoke();
+                        OnNetickClientStarted?.Invoke();
                         break;
                     }
             }
@@ -153,7 +117,7 @@ namespace Netick.Transport
 
             _steamworksServer = null;
             _steamConnection = null;
-            _onNetickShutdownEvent?.Invoke();
+            OnNetickShutdownEvent?.Invoke();
         }
 
         public override void PollEvents()
