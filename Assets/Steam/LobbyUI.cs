@@ -24,11 +24,11 @@ namespace Netick.Examples.Steam
             if (instance == null)
             {
                 instance = this;
-                SteamworksUtils.OnLobbyEnteredEvent += JoinedLobby;
-                SteamworksUtils.OnLobbyLeftEvent += LeftLobby;
-                SteamworksUtils.OnLobbySearchStart += ClearLobbyList;
-                SteamworksUtils.OnLobbySearchFinished += UpdateLobbyList;
-                SteamworksUtils.OnGameServerShutdown += ResetLobbyCamera;
+                SteamLobbyExample.OnLobbyEnteredEvent += JoinedLobby;
+                SteamLobbyExample.OnLobbyLeftEvent += LeftLobby;
+                SteamLobbyExample.OnLobbySearchStart += ClearLobbyList;
+                SteamLobbyExample.OnLobbySearchFinished += UpdateLobbyList;
+                SteamLobbyExample.OnGameServerShutdown += ResetLobbyCamera;
             }
             else
                 Destroy(gameObject);
@@ -53,7 +53,7 @@ namespace Netick.Examples.Steam
                 }
                 else
                 {
-                    bool IsOwner = SteamworksUtils.CurrentLobby.IsOwnedBy(SteamworksUtils.SteamID);
+                    bool IsOwner = SteamLobbyExample.CurrentLobby.IsOwnedBy(SteamInitializer.SteamID);
                     if (IsOwner)
                     {
                         StartServerButton.interactable = true;
@@ -99,14 +99,14 @@ namespace Netick.Examples.Steam
                 var lobbyGO = Instantiate(LobbyInfoPrefab, LobbyContent.transform);
                 lobbyGO.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = lobby.GetData("LobbyName");
                 lobbyGO.GetComponent<Button>().onClick.AddListener(async () => {
-                    await SteamworksUtils.JoinLobby(lobby.Id);
+                    await SteamLobbyExample.JoinLobby(lobby.Id);
                 });
             }
         }
 
         public void JoinedLobby(Lobby lobby)
         {
-            bool IsOwner = lobby.IsOwnedBy(SteamworksUtils.SteamID);
+            bool IsOwner = lobby.IsOwnedBy(SteamInitializer.SteamID);
             if (IsOwner)
             {
                 StartServerButton.interactable = true;

@@ -1290,8 +1290,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 8372337168820357533}
-        m_TargetAssemblyTypeName: SteamworksUtils, Assembly-CSharp
+      - m_Target: {fileID: 8372337168820357532}
+        m_TargetAssemblyTypeName: SteamLobbyExample, Assembly-CSharp
         m_MethodName: ConnectToGameServer
         m_Mode: 1
         m_Arguments:
@@ -3034,9 +3034,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 8372337168820357533}
-        m_TargetAssemblyTypeName: Assets.Steam_Networking.steam.SteamworksUtils,
-          Assembly-CSharp
+      - m_Target: {fileID: 8372337168820357532}
+        m_TargetAssemblyTypeName: SteamLobbyExample, Assembly-CSharp
         m_MethodName: LeaveLobby
         m_Mode: 1
         m_Arguments:
@@ -4368,9 +4367,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 8372337168820357533}
-        m_TargetAssemblyTypeName: Assets.Steam_Networking.steam.SteamworksUtils,
-          Assembly-CSharp
+      - m_Target: {fileID: 8372337168820357532}
+        m_TargetAssemblyTypeName: SteamLobbyExample, Assembly-CSharp
         m_MethodName: CreateLobby
         m_Mode: 3
         m_Arguments:
@@ -5263,8 +5261,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 8372337168820357533}
-        m_TargetAssemblyTypeName: SteamworksUtils, Assembly-CSharp
+      - m_Target: {fileID: 8372337168820357532}
+        m_TargetAssemblyTypeName: SteamLobbyExample, Assembly-CSharp
         m_MethodName: StartGameServer
         m_Mode: 1
         m_Arguments:
@@ -5397,8 +5395,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 8372337168820357533}
-        m_TargetAssemblyTypeName: SteamworksUtils, Assembly-CSharp
+      - m_Target: {fileID: 8372337168820357532}
+        m_TargetAssemblyTypeName: SteamLobbyExample, Assembly-CSharp
         m_MethodName: StopGameServer
         m_Mode: 1
         m_Arguments:
@@ -6092,9 +6090,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 8372337168820357533}
-        m_TargetAssemblyTypeName: Assets.Steam_Networking.steam.SteamworksUtils,
-          Assembly-CSharp
+      - m_Target: {fileID: 8372337168820357532}
+        m_TargetAssemblyTypeName: SteamLobbyExample, Assembly-CSharp
         m_MethodName: CreateLobby
         m_Mode: 3
         m_Arguments:
@@ -6238,9 +6235,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 8372337168820357533}
-        m_TargetAssemblyTypeName: Assets.Steam_Networking.steam.SteamworksUtils,
-          Assembly-CSharp
+      - m_Target: {fileID: 8372337168820357532}
+        m_TargetAssemblyTypeName: SteamLobbyExample, Assembly-CSharp
         m_MethodName: CreateLobby
         m_Mode: 3
         m_Arguments:
@@ -7370,9 +7366,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 8372337168820357533}
-        m_TargetAssemblyTypeName: Assets.Steam_Networking.steam.SteamworksUtils,
-          Assembly-CSharp
+      - m_Target: {fileID: 8372337168820357532}
+        m_TargetAssemblyTypeName: SteamLobbyExample, Assembly-CSharp
         m_MethodName: Search
         m_Mode: 1
         m_Arguments:
@@ -7484,6 +7479,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8372337168820357530}
   - component: {fileID: 8372337168820357533}
+  - component: {fileID: 8372337168820357532}
   m_Layer: 0
   m_Name: Steam Utils
   m_TagString: Untagged
@@ -7491,6 +7487,26 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &8372337168820357532
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8372337168820357531}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16aaa5a743a83dc478a6e4a90b9345bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  AutoStartServerWithLobby: 1
+  NumberOfSlots: 16
+  GameName: Your Games Name
+  LobbySearchDistance: 3
+  MinimumSlotsAvailable: 1
+  Transport: {fileID: 11400000, guid: 944cf81419407044f987b12d9aeafaf3, type: 2}
+  SandboxPrefab: {fileID: 0}
+  Port: 4050
 --- !u!114 &8372337168820357533
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7500,17 +7516,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 8372337168820357531}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e7a90a702de4d034db4352e1c4592496, type: 3}
+  m_Script: {fileID: 11500000, guid: 356908139e00de8459c810806aa0c6fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   AppID: 480
-  AutoStartServerWithLobby: 1
-  NumberOfSlots: 16
-  GameName: Your Games Name
-  LobbySearchDistance: 3
-  MinimumSlotsAvailable: 1
   EnableSteam: 1
-  DisableNagleTimer: 0
-  Transport: {fileID: 11400000, guid: 944cf81419407044f987b12d9aeafaf3, type: 2}
-  SandboxPrefab: {fileID: 0}
-  Port: 4050
