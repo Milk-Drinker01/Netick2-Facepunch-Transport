@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Steamworks;
 using Steamworks.Data;
 using UnityEngine;
@@ -15,6 +16,8 @@ namespace Netick.Transports.FacepunchTransport {
 
         static FacepunchConnection clientToServerConnection;
 
+        readonly uint _appId;
+
         readonly LogLevel _logLevel;
 
         BitBuffer _buffer;
@@ -25,11 +28,13 @@ namespace Netick.Transports.FacepunchTransport {
 
         public bool IsServer;
 
-        public FacepunchTransport(SendType sendType, bool forceFlush, LogLevel logLevel = LogLevel.Error) {
+        public FacepunchTransport(SendType sendType, bool forceFlush, LogLevel logLevel = LogLevel.Error, uint appId = 480) {
             SteamSendType = sendType;
             ForceFlush = forceFlush;
             _logLevel = logLevel;
+            _appId = appId;
         }
+        public static SteamId SteamID { get; private set; }
         public static event Action OnNetickServerStarted;
         public static event Action OnNetickClientStarted;
         public static event Action OnNetickShutdownEvent;
@@ -37,6 +42,22 @@ namespace Netick.Transports.FacepunchTransport {
         public override void Init() {
             if (_logLevel <= LogLevel.Developer)
                 Debug.Log($"[{nameof(FacepunchTransport)}] - Initializing Transport");
+
+            if (!SteamClient.IsValid) {
+                if (_logLevel <= LogLevel.Normal)
+                    Debug.Log($"[{nameof(FacepunchTransport)}] - SteamClient should've been initialized before, but doing it now");
+
+                try {
+                    SteamClient.Init(_appId);
+                }
+                catch (Exception e) {
+                    if (_logLevel <= LogLevel.Error)
+                        Debug.Log($"[{nameof(FacepunchTransport)}] - Couldn't initialize SteamClient: {e}");
+                }
+
+            }
+
+            InitSteamworks();
 
             _buffer = new BitBuffer(createChunks: false);
         }
@@ -85,6 +106,22 @@ namespace Netick.Transports.FacepunchTransport {
         public override void PollEvents() {
             _steamworksServer?.Receive();
             _steamConnection?.Receive();
+        }
+
+        async void InitSteamworks() {
+            while (!SteamClient.IsValid) {
+                await Task.Yield();
+            }
+
+            SteamNetworkingUtils.InitRelayNetworkAccess();
+
+            if (_logLevel <= LogLevel.Developer)
+                Debug.Log($"[{nameof(FacepunchTransport)}] - Initialized access to Steam Relay Network.");
+
+            SteamID = SteamClient.SteamId;
+
+            if (_logLevel <= LogLevel.Developer)
+                Debug.Log($"[{nameof(FacepunchTransport)}] - Fetched user Steam ID.");
         }
 
         #region SERVER

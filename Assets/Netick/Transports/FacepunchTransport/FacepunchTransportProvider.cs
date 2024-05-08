@@ -13,8 +13,11 @@ namespace Netick.Transports.FacepunchTransport {
         [Tooltip("Keep this off if you are using the NoNagle send type. turning this on disables the nagle timer.")]
         [SerializeField]
         bool FlushMessages;
-
-        [Tooltip("Keep this off if you are using the NoNagle send type. turning this on disables the nagle timer.")]
+        
+        [Tooltip("The Steam App ID of your game. Technically you're not allowed to use 480, but Valve doesn't do anything about it so it's fine for testing purposes.")]
+        [SerializeField]
+        uint AppID = 480;
+        
         [SerializeField]
         LogLevel logLevel = LogLevel.Error;
 
@@ -26,6 +29,6 @@ namespace Netick.Transports.FacepunchTransport {
         }
 #endif
 
-        public override NetworkTransport MakeTransportInstance() => new FacepunchTransport(SteamDataSendType, FlushMessages, logLevel);
+        public override NetworkTransport MakeTransportInstance() => new FacepunchTransport(SteamDataSendType, FlushMessages, logLevel, AppID);
     }
 }

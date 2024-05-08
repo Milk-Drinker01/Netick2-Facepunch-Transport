@@ -1,6 +1,6 @@
 using Steamworks.Data;
 using System.Collections.Generic;
-using Netick.Transports.FacepunchTransport;
+using Steamworks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -52,7 +52,7 @@ namespace Netick.Examples.Steam
                 }
                 else
                 {
-                    bool IsOwner = SteamLobbyExample.CurrentLobby.IsOwnedBy(FacepunchInitializer.SteamID);
+                    bool IsOwner = SteamLobbyExample.CurrentLobby.IsOwnedBy(SteamClient.SteamId);
                     if (IsOwner)
                     {
                         StartServerButton.interactable = true;
@@ -105,7 +105,7 @@ namespace Netick.Examples.Steam
 
         public void JoinedLobby(Lobby lobby)
         {
-            bool IsOwner = lobby.IsOwnedBy(FacepunchInitializer.SteamID);
+            bool IsOwner = lobby.IsOwnedBy(SteamClient.SteamId);
             if (IsOwner)
             {
                 StartServerButton.interactable = true;
