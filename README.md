@@ -2,8 +2,8 @@
  A Transport class for Netick that uses SteamNetworkingSockets with Facepunch.Steamworks
  
  Credits: 
-  - me: Update to netick 2, Facepunch.Steamworks SteamNetworkingSockets example
   - Adevian: Showed me how to write the Netick 1 transport
+  - Me: Updated netick 1 transport to netick 2, wrote the SteamNetworkingSockets code
   - Karrar: Created Netick
   - Maclay: Helped cleanup the project files & code
 
