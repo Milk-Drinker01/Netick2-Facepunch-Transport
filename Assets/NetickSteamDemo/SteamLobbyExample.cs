@@ -1,10 +1,9 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using Netick.Unity;
-using Netick.Transport;
+using Netick.Transports.FacepunchTransport;
 using Steamworks;
 using Steamworks.Data;
 
@@ -32,18 +31,22 @@ public class SteamLobbyExample : MonoBehaviour
     [SerializeField] NetworkTransportProvider Transport;
     [SerializeField] GameObject SandboxPrefab;
     [SerializeField] int Port = 4050;
+    
+    [Header("Steam settings")]
+    [SerializeField]
+    uint AppId = 480;
 
     private void Start()
     {
-        if (SteamClient.IsValid)
-            InitLobbyCallbacks();
-        else
-            SteamInitializer.OnInitializeCallbacks += InitLobbyCallbacks;
+        if (!SteamClient.IsValid) {
+            SteamClient.Init(AppId);
+        }
+        
+        InitLobbyCallbacks();
     }
 
     void OnDestroy()
     {
-        SteamInitializer.OnInitializeCallbacks -= InitLobbyCallbacks;
         FacepunchTransport.OnNetickServerStarted -= OnNetickServerStarted;
         FacepunchTransport.OnNetickShutdownEvent -= OnNetickShutdown;
     }
@@ -68,7 +71,7 @@ public class SteamLobbyExample : MonoBehaviour
             CurrentLobby = lobby;
             OnLobbyEnteredEvent?.Invoke(lobby);
 
-            if (AutoStartServerWithLobby && !lobby.IsOwnedBy(SteamInitializer.SteamID))
+            if (AutoStartServerWithLobby && !lobby.IsOwnedBy(SteamClient.SteamId))
                 ConnectToGameServer();
         };
 
@@ -92,7 +95,7 @@ public class SteamLobbyExample : MonoBehaviour
             if (serverGameId != 0)
                 Debug.Log("A server has been associated with this Lobby");
 
-            if (AutoStartServerWithLobby && !lobby.IsOwnedBy(SteamInitializer.SteamID))
+            if (AutoStartServerWithLobby && !lobby.IsOwnedBy(SteamClient.SteamId))
                 ConnectToGameServer();
         };
 
@@ -235,7 +238,7 @@ public class SteamLobbyExample : MonoBehaviour
 
     public void StartGameServer()
     {
-        if (!CurrentLobby.IsOwnedBy(SteamInitializer.SteamID))
+        if (!CurrentLobby.IsOwnedBy(SteamClient.SteamId))
         {
             Debug.LogWarning("you cant start a server, you dont own the lobby");
             return;
@@ -285,16 +288,16 @@ public class SteamLobbyExample : MonoBehaviour
 
     public void OnNetickServerStarted()
     {
-        if (CurrentLobby.Owner.Id == SteamInitializer.SteamID)
+        if (CurrentLobby.Owner.Id == SteamClient.SteamId)
         {
-            CurrentLobby.SetGameServer(SteamInitializer.SteamID);
+            CurrentLobby.SetGameServer(SteamClient.SteamId);
         }
     }
 
     public void OnNetickShutdown()
     {
         OnGameServerShutdown?.Invoke();
-        if (CurrentLobby.IsOwnedBy(SteamInitializer.SteamID))
+        if (CurrentLobby.IsOwnedBy(SteamClient.SteamId))
             CurrentLobby.SetGameServer("127.0.0.1", 0);
     }
 }
