@@ -2,12 +2,21 @@
  A Transport class for Netick that uses SteamNetworkingSockets with Facepunch.Steamworks
  
  Credits: 
-  - me: Update to netick 2, Facepunch.Steamworks SteamNetworkingSockets example, Better (IMO) FPS demo scene
-  - Adevian: Netick 1 integration
-  - Karrar: Netick
+  - me: Update to netick 2, Facepunch.Steamworks SteamNetworkingSockets example
+  - Adevian: Showed me how to write the Netick 1 transport
+  - Karrar: Created Netick
+  - Maclay: Helped cleanup the project files & code
+
+ Features:
+ - Steam Lobbies and matchmaking example
+  - Create public, private, and friends only lobbies
+  - Public lobby search with distance queries
+  - Steam command line to auto-join lobbies on startup, when the game is started by clicking "join friend" on steam
+ - Free Peer-to-peer with no port forwarding and no IP leaking, thanks to SteamNetworkingSockets and the steam relay
+ - Easy to quickly integrate into your Netick project
  
  TODO:
-  - voice chat
+  - voice chat (will add when karrar updates netick to support sending data on the transport level)
  
  Created with Unity 2021.3.34
  
