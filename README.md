@@ -1,5 +1,5 @@
 # Netick-2-Facepunch-Transport
- A Transport class for Netick that uses SteamNetworkingSockets with Facepunch.Steamworks
+ A Transport class for Netick 2 that uses SteamNetworkingSockets with Facepunch.Steamworks
  
  Credits: 
   - Adevian: Showed me how to write the Netick 1 transport
