@@ -95,6 +95,27 @@ public class SteamLobbyExample : MonoBehaviour
             if (AutoStartServerWithLobby && !lobby.IsOwnedBy(SteamInitializer.SteamID))
                 ConnectToGameServer();
         };
+
+
+        //THIS CODE WILL AUTO JOIN A LOBBY IF THE GAME WAS LAUNCHED BY CLICKING "join friend" ON STEAM
+        string[] args = System.Environment.GetCommandLineArgs();
+        if (args.Length >= 2)
+        {
+            for (int i = 0; i < args.Length - 1; i++)
+            {
+                if (args[i].ToLower() == "+connect_lobby")
+                {
+                    if (ulong.TryParse(args[i + 1], out ulong lobbyID))
+                    {
+                        if (lobbyID > 0)
+                        {
+                            SteamMatchmaking.JoinLobbyAsync(lobbyID);
+                        }
+                    }
+                    break;
+                }
+            }
+        }
     }
 
 
