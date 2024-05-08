@@ -11,7 +11,7 @@
  - (TO DO) voice chat (will add when karrar updates netick to support sending data on the transport level)
 
 Requirements
-- Facepunch.Steamworks (https://github.com/Facepunch/Facepunch.Steamworks)
+- Facepunch.Steamworks (https://github.com/Facepunch/Facepunch.Steamworks) (https://wiki.facepunch.com/steamworks/Setting_Up)
 - Netick 2 for Unity (https://github.com/NetickNetworking/NetickForUnity)
 - Unity 2021.3 or newer
  
