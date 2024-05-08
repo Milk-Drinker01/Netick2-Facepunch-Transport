@@ -8,9 +8,7 @@
    - Steam command line to auto-join lobbies on startup, when the game is started by clicking "join friend" on steam
  - Free Peer-to-peer with no port forwarding and no IP leaking, thanks to SteamNetworkingSockets and the steam relay
  - Easy to quickly integrate into your Netick project
- 
- TODO:
-  - voice chat (will add when karrar updates netick to support sending data on the transport level)
+ - (TO DO) voice chat (will add when karrar updates netick to support sending data on the transport level)
 
 Requirements
 - Facepunch.Steamworks (https://github.com/Facepunch/Facepunch.Steamworks)
