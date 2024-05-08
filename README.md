@@ -9,9 +9,9 @@
 
  Features:
  - Steam Lobbies and matchmaking example
-  - Create public, private, and friends only lobbies
-  - Public lobby search with distance queries
-  - Steam command line to auto-join lobbies on startup, when the game is started by clicking "join friend" on steam
+   - Create public, private, and friends only lobbies
+   - Public lobby search with distance queries
+   - Steam command line to auto-join lobbies on startup, when the game is started by clicking "join friend" on steam
  - Free Peer-to-peer with no port forwarding and no IP leaking, thanks to SteamNetworkingSockets and the steam relay
  - Easy to quickly integrate into your Netick project
  
