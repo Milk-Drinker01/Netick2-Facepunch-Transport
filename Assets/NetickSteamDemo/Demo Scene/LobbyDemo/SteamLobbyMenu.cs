@@ -1,13 +1,12 @@
-using Steamworks.Data;
 using System.Collections.Generic;
 using Steamworks;
+using Steamworks.Data;
 using UnityEngine;
 using UnityEngine.UI;
+using Network = Netick.Unity.Network;
 
-namespace Netick.Examples.Steam
-{
-    public class SteamLobbyMenu : MonoBehaviour
-    {
+namespace Netick.Examples.Steam {
+    public class SteamLobbyMenu : MonoBehaviour {
         public static SteamLobbyMenu instance;
 
         public GameObject SearchMenu;
@@ -17,10 +16,11 @@ namespace Netick.Examples.Steam
         public Button StartServerButton;
         public Button ConnectToServerButton;
         public Button StopServerButton;
-        private void Awake()
-        {
-            if (instance == null)
-            {
+
+        bool locked;
+        bool WasRunningLastFrame;
+        void Awake() {
+            if (instance == null) {
                 instance = this;
                 SteamLobbyExample.OnLobbyEnteredEvent += JoinedLobby;
                 SteamLobbyExample.OnLobbyLeftEvent += LeftLobby;
@@ -31,34 +31,25 @@ namespace Netick.Examples.Steam
             else
                 Destroy(gameObject);
         }
-
-        bool locked;
-        private bool WasRunningLastFrame;
-        private void Update()
-        {
+        void Update() {
             if (Input.GetKeyDown(KeyCode.Escape))
                 ToggleCursor();
 
-            bool IsRunning = Netick.Unity.Network.IsRunning;
+            var IsRunning = Network.IsRunning;
 
-            if (WasRunningLastFrame != IsRunning)
-            {
-                if (IsRunning)
-                {
+            if (WasRunningLastFrame != IsRunning) {
+                if (IsRunning) {
                     StartServerButton.interactable = false;
                     ConnectToServerButton.interactable = false;
                     StopServerButton.interactable = true;
                 }
-                else
-                {
-                    bool IsOwner = SteamLobbyExample.CurrentLobby.IsOwnedBy(SteamClient.SteamId);
-                    if (IsOwner)
-                    {
+                else {
+                    var IsOwner = SteamLobbyExample.CurrentLobby.IsOwnedBy(SteamClient.SteamId);
+                    if (IsOwner) {
                         StartServerButton.interactable = true;
                         ConnectToServerButton.interactable = false;
                     }
-                    else
-                    {
+                    else {
                         StartServerButton.interactable = false;
                         ConnectToServerButton.interactable = true;
                     }
@@ -69,31 +60,26 @@ namespace Netick.Examples.Steam
             WasRunningLastFrame = IsRunning;
         }
 
-        void ToggleCursor()
-        {
+        void ToggleCursor() {
             locked = !locked;
-            if (locked)
-            {
+            if (locked) {
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;
             }
-            else
-            {
+            else {
                 Cursor.lockState = CursorLockMode.Confined;
                 Cursor.visible = true;
             }
         }
 
-        public void ClearLobbyList()
-        {
-            for (int i = 0; i < LobbyContent.transform.childCount; i++)
+        public void ClearLobbyList() {
+            for (var i = 0; i < LobbyContent.transform.childCount; i++) {
                 Destroy(LobbyContent.transform.GetChild(i).gameObject);
+            }
         }
 
-        public void UpdateLobbyList(List<Lobby> LobbyList)
-        {
-            foreach (var lobby in LobbyList)
-            {
+        public void UpdateLobbyList(List<Lobby> LobbyList) {
+            foreach (var lobby in LobbyList) {
                 var lobbyGO = Instantiate(LobbyInfoPrefab, LobbyContent.transform);
                 lobbyGO.transform.GetChild(0).GetComponent<Text>().text = lobby.GetData("LobbyName");
                 lobbyGO.GetComponent<Button>().onClick.AddListener(async () => {
@@ -102,16 +88,13 @@ namespace Netick.Examples.Steam
             }
         }
 
-        public void JoinedLobby(Lobby lobby)
-        {
-            bool IsOwner = lobby.IsOwnedBy(SteamClient.SteamId);
-            if (IsOwner)
-            {
+        public void JoinedLobby(Lobby lobby) {
+            var IsOwner = lobby.IsOwnedBy(SteamClient.SteamId);
+            if (IsOwner) {
                 StartServerButton.interactable = true;
                 ConnectToServerButton.interactable = false;
             }
-            else
-            {
+            else {
                 StartServerButton.interactable = false;
                 ConnectToServerButton.interactable = true;
             }
@@ -119,14 +102,12 @@ namespace Netick.Examples.Steam
             LobbyMenu.SetActive(true);
         }
 
-        public void LeftLobby()
-        {
+        public void LeftLobby() {
             SearchMenu.SetActive(true);
             LobbyMenu.SetActive(false);
         }
 
-        public void ResetLobbyCamera()
-        {
+        public void ResetLobbyCamera() {
             FindObjectOfType<Camera>().transform.SetParent(null);
         }
     }
