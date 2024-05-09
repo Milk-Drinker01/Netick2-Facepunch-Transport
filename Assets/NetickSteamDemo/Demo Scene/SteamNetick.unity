@@ -6949,6 +6949,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8372337168820357530}
+  - component: {fileID: 8372337168820357533}
   - component: {fileID: 8372337168820357532}
   m_Layer: 0
   m_Name: Steam Initializer
@@ -6977,4 +6978,16 @@ MonoBehaviour:
   Transport: {fileID: 11400000, guid: 8c01b23194781c8479525ccd3ecce1e3, type: 2}
   SandboxPrefab: {fileID: 0}
   Port: 4050
-  AppId: 480
+--- !u!114 &8372337168820357533
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8372337168820357531}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6da62c5d9a44d5b89fe495b4617ede8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  AppID: 480

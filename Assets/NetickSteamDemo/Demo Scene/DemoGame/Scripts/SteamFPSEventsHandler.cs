@@ -1,32 +1,38 @@
-﻿using Netick.Unity;
-using UnityEngine;
+﻿using UnityEngine;
+using Netick;
+using Netick.Unity;
 
-namespace Netick.Examples.Steam {
-    public class SteamFPSEventsHandler : NetworkEventsListener {
-        public Transform SpawnPos;
-        public GameObject PlayerPrefab;
+namespace Netick.Examples.Steam
+{
+    public class SteamFPSEventsHandler : NetworkEventsListener
+    {
+        public Transform    SpawnPos;
+        public GameObject   PlayerPrefab;
 
         // This is called on the server and the clients when the scene has been loaded.
-        public override void OnSceneLoaded(NetworkSandbox sandbox) {
+        public override void OnSceneLoaded(NetworkSandbox sandbox)
+        {
             if (sandbox.IsClient)
                 return;
 
-            for (var i = 0; i < sandbox.ConnectedPlayers.Count; i++) {
+            for (int i = 0; i < sandbox.ConnectedPlayers.Count; i++)
+            {
                 if (sandbox.ConnectedPlayers[i].PlayerObject != null)
                     continue;
 
-                var p = sandbox.ConnectedPlayers[i];
+                var p          = sandbox.ConnectedPlayers[i];
 
-                var spawnPos = SpawnPos.position + Vector3.left * i;
-                var player = sandbox.NetworkInstantiate(PlayerPrefab, spawnPos, Quaternion.identity, p).GetComponent<SteamFPSController>();
+                var spawnPos   = SpawnPos.position + Vector3.left * (i);
+                var player     = sandbox.NetworkInstantiate(PlayerPrefab, spawnPos, Quaternion.identity, p).GetComponent<SteamFPSController>();
                 p.PlayerObject = player.gameObject;
             }
         }
 
         // This is called on the server when a client has connected.
-        public override void OnPlayerConnected(NetworkSandbox sandbox, NetworkPlayer client) {
-            var spawnPos = SpawnPos.position + Vector3.left * (1 + sandbox.ConnectedPlayers.Count);
-            var player = sandbox.NetworkInstantiate(PlayerPrefab, spawnPos, Quaternion.identity, client).GetComponent<SteamFPSController>();
+        public override void OnPlayerConnected(NetworkSandbox sandbox, Netick.NetworkPlayer client)
+        {
+            var spawnPos        = SpawnPos.position + Vector3.left * (1 + sandbox.ConnectedPlayers.Count);
+            var player          = sandbox.NetworkInstantiate(PlayerPrefab, spawnPos, Quaternion.identity, client).GetComponent<SteamFPSController>();
             client.PlayerObject = player.gameObject;
         }
     }

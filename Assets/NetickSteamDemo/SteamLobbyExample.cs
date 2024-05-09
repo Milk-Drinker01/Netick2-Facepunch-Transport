@@ -1,63 +1,55 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Netick.Transports.Facepunch;
+using UnityEngine;
 using Netick.Unity;
+using Netick.Transport;
+using Netick.Transports.Facepunch;
 using Steamworks;
 using Steamworks.Data;
-using UnityEngine;
-using Network = Netick.Unity.Network;
 
-public class SteamLobbyExample : MonoBehaviour {
-    public static Lobby CurrentLobby;
-
-    [SerializeField]
-    bool AutoStartServerWithLobby = true;
-
-    [Header("Lobby Host Settings")]
-    [SerializeField]
-    int NumberOfSlots = 16;
-
-    [Header("Lobby Search Settings")]
-    [Tooltip("this is just so that you dont find other peoples lobbies while testing with app id 480! make it unique!")]
-    [SerializeField]
-    string GameName = "Your Games Name";
-    [SerializeField]
-    DistanceFilter LobbySearchDistance = DistanceFilter.WorldWide;
-    [SerializeField]
-    int MinimumSlotsAvailable = 1;
-
-    [Header("Netick Settings")]
-    [SerializeField]
-    NetworkTransportProvider Transport;
-    [SerializeField]
-    GameObject SandboxPrefab;
-    [SerializeField]
-    int Port = 4050;
-
-    [Header("Steam settings")]
-    [SerializeField]
-    uint AppId = 480;
-
-    void Start() {
-        if (!SteamClient.IsValid) {
-            SteamClient.Init(AppId);
-        }
-
-        InitLobbyCallbacks();
-    }
-
-    void OnDestroy() {
-        FacepunchTransport.OnNetickServerStarted -= OnNetickServerStarted;
-        FacepunchTransport.OnNetickShutdownEvent -= OnNetickShutdown;
-    }
+public class SteamLobbyExample : MonoBehaviour
+{
     public static event Action<Lobby> OnLobbyEnteredEvent;
     public static event Action OnLobbyLeftEvent;
     public static event Action OnLobbySearchStart;
     public static event Action<List<Lobby>> OnLobbySearchFinished;
     public static event Action OnGameServerShutdown;
+    public static Lobby CurrentLobby;
 
-    void InitLobbyCallbacks() {
+    [SerializeField] bool AutoStartServerWithLobby = true;
+
+    [Header("Lobby Host Settings")]
+    [SerializeField] int NumberOfSlots = 16;
+
+    [Header("Lobby Search Settings")]
+    [Tooltip("this is just so that you dont find other peoples lobbies while testing with app id 480! make it unique!")]
+    [SerializeField] string GameName = "Your Games Name";
+    [SerializeField] DistanceFilter LobbySearchDistance = DistanceFilter.WorldWide;
+    [SerializeField] int MinimumSlotsAvailable = 1;
+
+    [Header("Netick Settings")]
+    [SerializeField] NetworkTransportProvider Transport;
+    [SerializeField] GameObject SandboxPrefab;
+    [SerializeField] int Port = 4050;
+
+    private void Start() {
+        if (SteamClient.IsValid)
+            InitLobbyCallbacks();
+        else
+            FacepunchInitialier.OnInitializeCallbacks += InitLobbyCallbacks;
+    }
+
+    void OnDestroy()
+    {
+        FacepunchInitialier.OnInitializeCallbacks -= InitLobbyCallbacks;
+        FacepunchTransport.OnNetickServerStarted -= OnNetickServerStarted;
+        FacepunchTransport.OnNetickShutdownEvent -= OnNetickShutdown;
+    }
+
+    private void InitLobbyCallbacks()
+    {
         FacepunchTransport.OnNetickServerStarted += OnNetickServerStarted;
         FacepunchTransport.OnNetickShutdownEvent += OnNetickShutdown;
 
@@ -71,7 +63,7 @@ public class SteamLobbyExample : MonoBehaviour {
             Debug.Log(friend.Name + " Joined the lobby");
         };
 
-        SteamMatchmaking.OnLobbyEntered += lobby => {
+        SteamMatchmaking.OnLobbyEntered += (lobby) => {
             Debug.Log($"You joined {lobby.GetData("LobbyName")}");
             CurrentLobby = lobby;
             OnLobbyEnteredEvent?.Invoke(lobby);
@@ -88,9 +80,13 @@ public class SteamLobbyExample : MonoBehaviour {
             Debug.Log($"From {friend.Name}: {message}");
         };
 
-        SteamMatchmaking.OnLobbyDataChanged += lobby => {};
+        SteamMatchmaking.OnLobbyDataChanged += (lobby) => {
 
-        SteamMatchmaking.OnLobbyMemberDataChanged += (lobby, friend) => {};
+        };
+
+        SteamMatchmaking.OnLobbyMemberDataChanged += (lobby, friend) => {
+
+        };
 
         SteamMatchmaking.OnLobbyGameCreated += (lobby, ip, port, serverGameId) => {
             if (serverGameId != 0)
@@ -102,12 +98,17 @@ public class SteamLobbyExample : MonoBehaviour {
 
 
         //THIS CODE WILL AUTO JOIN A LOBBY IF THE GAME WAS LAUNCHED BY CLICKING "join friend" ON STEAM
-        var args = Environment.GetCommandLineArgs();
-        if (args.Length >= 2) {
-            for (var i = 0; i < args.Length - 1; i++) {
-                if (args[i].ToLower() == "+connect_lobby") {
-                    if (ulong.TryParse(args[i + 1], out var lobbyID)) {
-                        if (lobbyID > 0) {
+        string[] args = System.Environment.GetCommandLineArgs();
+        if (args.Length >= 2)
+        {
+            for (int i = 0; i < args.Length - 1; i++)
+            {
+                if (args[i].ToLower() == "+connect_lobby")
+                {
+                    if (ulong.TryParse(args[i + 1], out ulong lobbyID))
+                    {
+                        if (lobbyID > 0)
+                        {
                             SteamMatchmaking.JoinLobbyAsync(lobbyID);
                         }
                     }
@@ -117,36 +118,21 @@ public class SteamLobbyExample : MonoBehaviour {
         }
     }
 
-    public void DisconnectFromServer() {
-        Debug.Log("Shutting Down Netick....");
-        Network.Shutdown();
-    }
-
-    public void OnNetickServerStarted() {
-        if (CurrentLobby.Owner.Id == SteamClient.SteamId) {
-            CurrentLobby.SetGameServer(SteamClient.SteamId);
-        }
-    }
-
-    public void OnNetickShutdown() {
-        OnGameServerShutdown?.Invoke();
-        if (CurrentLobby.IsOwnedBy(SteamClient.SteamId))
-            CurrentLobby.SetGameServer("127.0.0.1", 0);
-    }
-
 
     #region Lobby Stuff
 
     LobbyType _lobbyType;
-    readonly List<Lobby> Matches = new List<Lobby>();
-    public async void SearchPublicLobbies() {
+    List<Lobby> Matches = new List<Lobby>();
+    public async void SearchPublicLobbies()
+    {
         _lobbyType = LobbyType.Public;
 
         Lobby[] lobbies;
 
-        var query = SteamMatchmaking.LobbyList.WithSlotsAvailable(MinimumSlotsAvailable).WithKeyValue("GameName", GameName);
+        LobbyQuery query = SteamMatchmaking.LobbyList.WithSlotsAvailable(MinimumSlotsAvailable).WithKeyValue("GameName", GameName);
 
-        query = LobbySearchDistance switch {
+        query = LobbySearchDistance switch
+        {
             DistanceFilter.Close => query.FilterDistanceClose(),
             DistanceFilter.Far => query.FilterDistanceFar(),
             DistanceFilter.WorldWide => query.FilterDistanceWorldwide(),
@@ -158,13 +144,15 @@ public class SteamLobbyExample : MonoBehaviour {
         Matches.Clear();
         OnLobbySearchStart?.Invoke();
 
-        if (lobbies == null) {
+        if (lobbies == null)
+        {
             Debug.Log("No lobbies found");
             //CreateLobby(0);
             return;
         }
 
-        foreach (var lobby in lobbies) {
+        foreach (var lobby in lobbies)
+        {
             if (!Matches.Contains(lobby) && lobby.MemberCount != 0)
                 Matches.Add(lobby);
         }
@@ -172,17 +160,20 @@ public class SteamLobbyExample : MonoBehaviour {
         OnLobbySearchFinished?.Invoke(Matches);
     }
 
-    public void CreateLobby(LobbyType lobbyType = LobbyType.Public) {
+    public void CreateLobby(LobbyType lobbyType = LobbyType.Public)
+    {
         _lobbyType = lobbyType;
         SteamMatchmaking.CreateLobbyAsync();
     }
 
-    public void CreateLobby(int lobbyType = 0) {
+    public void CreateLobby(int lobbyType = 0)
+    {
         _lobbyType = (LobbyType)lobbyType;
         SteamMatchmaking.CreateLobbyAsync();
     }
 
-    void OnLobbyCreated(Result status, Lobby lobby) {
+    void OnLobbyCreated(Result status, Lobby lobby)
+    {
         lobby.SetData("GameName", GameName);
         lobby.SetData("LobbyName", $"{SteamClient.Name}'s lobby.");
         lobby.SetJoinable(true);
@@ -194,7 +185,8 @@ public class SteamLobbyExample : MonoBehaviour {
 
         Debug.Log($"lobby {lobby.Id} was created");
 
-        switch (_lobbyType) {
+        switch (_lobbyType)
+        {
             case LobbyType.Public:
                 lobby.SetPublic();
                 break;
@@ -210,72 +202,99 @@ public class SteamLobbyExample : MonoBehaviour {
             StartGameServer();
     }
 
-    public static async Task JoinLobby(ulong id) {
+    public static async Task JoinLobby(ulong id)
+    {
         await SteamMatchmaking.JoinLobbyAsync(id);
     }
 
-    public void LeaveLobby() {
+    public void LeaveLobby()
+    {
         Debug.Log("leaving lobby");
         CurrentLobby.Leave();
         DisconnectFromServer();
         OnLobbyLeftEvent?.Invoke();
     }
 
-    public enum DistanceFilter {
+    public enum DistanceFilter
+    {
         Close,
         Default,
         Far,
         WorldWide
     }
 
-    public enum LobbyType {
+    public enum LobbyType
+    {
         Public,
         FriendsOnly,
         Private
     }
-
     #endregion
 
     #region Server Stuff
 
-    public void StartGameServer() {
-        if (!CurrentLobby.IsOwnedBy(SteamClient.SteamId)) {
+    public void StartGameServer()
+    {
+        if (!CurrentLobby.IsOwnedBy(SteamClient.SteamId))
+        {
             Debug.LogWarning("you cant start a server, you dont own the lobby");
             return;
         }
-        if (Network.IsRunning) {
+        if (Netick.Unity.Network.IsRunning)
+        {
             Debug.LogWarning("a game server is already running");
             return;
         }
 
-        Network.StartAsHost(Transport, Port, SandboxPrefab);
+        Netick.Unity.Network.StartAsHost(Transport, Port, SandboxPrefab);
     }
 
-    public void StopGameServer() {
+    public void StopGameServer()
+    {
         DisconnectFromServer();
     }
-
     #endregion
 
     #region Client Stuff
-
-    public void ConnectToGameServer() {
+    public void ConnectToGameServer()
+    {
         uint ip = 0;
         ushort port = 4050;
         SteamId serverID = 0;
-        if (!CurrentLobby.GetGameServer(ref ip, ref port, ref serverID) || serverID == 0) {
+        if (!CurrentLobby.GetGameServer(ref ip, ref port, ref serverID) || serverID == 0)
+        {
             Debug.LogWarning("Trying to connect to the lobbys server, but one has not been assigned");
             return;
         }
 
-        var sandbox = Network.StartAsClient(Transport, Port, SandboxPrefab);
+        var sandbox = Netick.Unity.Network.StartAsClient(Transport, Port, SandboxPrefab);
         sandbox.Connect(Port, CurrentLobby.Owner.Id.ToString());
     }
 
-    public void DisconnectedFromHostServer() {
+    public void DisconnectedFromHostServer()
+    {
         Debug.Log("Disconnected");
     }
-
     #endregion
 
+    public void DisconnectFromServer()
+    {
+        Debug.Log("Shutting Down Netick....");
+        Netick.Unity.Network.Shutdown();
+    }
+
+    public void OnNetickServerStarted()
+    {
+        if (CurrentLobby.Owner.Id == SteamClient.SteamId)
+        {
+            CurrentLobby.SetGameServer(SteamClient.SteamId);
+        }
+    }
+
+    public void OnNetickShutdown()
+    {
+        OnGameServerShutdown?.Invoke();
+        if (CurrentLobby.IsOwnedBy(SteamClient.SteamId))
+            CurrentLobby.SetGameServer("127.0.0.1", 0);
+    }
 }
