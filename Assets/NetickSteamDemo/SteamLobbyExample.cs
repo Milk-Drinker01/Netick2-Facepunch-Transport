@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Netick.Transports.FacepunchTransport;
+using Netick.Transports.Facepunch;
 using Netick.Unity;
 using Steamworks;
 using Steamworks.Data;

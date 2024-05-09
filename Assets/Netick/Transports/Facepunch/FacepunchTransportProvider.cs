@@ -7,7 +7,7 @@ using Steamworks.Data;
 using UnityEngine;
 using Network = Netick.Unity.Network;
 
-namespace Netick.Transports.FacepunchTransport {
+namespace Netick.Transports.Facepunch {
 
     [CreateAssetMenu(fileName = "FacepunchTransport", menuName = "Netick/Transport/FacepunchTransport", order = 2)]
     public class FacepunchTransportProvider : NetworkTransportProvider {
@@ -66,7 +66,7 @@ namespace Netick.Transports.FacepunchTransport {
                 Debug.Log($"[{nameof(FacepunchTransport)}] - Initializing Transport");
 
             if (!SteamClient.IsValid) {
-                if (_logLevel <= LogLevel.Normal)
+                if (_logLevel <= LogLevel.Error)
                     Debug.Log($"[{nameof(FacepunchTransport)}] - SteamClient wasn't initialized. " +
                               "Read more on how to set up transport: https://github.com/Milk-Drinker01/Netick2-Facepunch-Transport");
                 return;

@@ -12,3 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: babd5e4f8e534d12b9f7f412b593aad8, type: 3}
   m_Name: FacepunchTransport
   m_EditorClassIdentifier: 
+  SteamDataSendType: 1
+  FlushMessages: 0
+  logLevel: 0

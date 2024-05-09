@@ -1,4 +1,4 @@
-﻿namespace Netick.Transports.FacepunchTransport {
+﻿namespace Netick.Transports.Facepunch {
     public enum LogLevel {
         /// <summary>
         ///     Developer logging level, most verbose

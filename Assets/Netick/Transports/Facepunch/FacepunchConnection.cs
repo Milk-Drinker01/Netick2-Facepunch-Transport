@@ -2,7 +2,7 @@
 using System.Net;
 using Steamworks.Data;
 
-namespace Netick.Transports.FacepunchTransport {
+namespace Netick.Transports.Facepunch {
     public class FacepunchConnection : TransportConnection {
 
         public bool ForceFlush;
