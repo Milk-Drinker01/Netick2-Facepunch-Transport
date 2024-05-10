@@ -1,28 +1,18 @@
-# Netick-2-Facepunch-Transport
- A Transport class for Netick 2 that uses SteamNetworkingSockets with Facepunch.Steamworks
+# Netick Facepunch Transport
+This repository contains source code of Facepunch transport as well as an example of its usage with Steam Lobby service.
 
- Features:
- - Free Peer-to-peer with no port forwarding and no IP leaking, thanks to SteamNetworkingSockets and the steam relay
- - Steam Lobbies and matchmaking example
-   - Create public, private, and friends only lobbies
-   - Public lobby search with distance queries
-   - Steam command line to auto-join lobbies on startup, when the game is started by clicking "join friend" on steam
- - Easy to quickly integrate into your Netick project
- - (TO DO) voice chat (will add when karrar updates netick to support sending data on the transport level)
+## Installation
+1. Download .unitypackage from the release section and import it into your project. Uncheck the Plugins folder if you already have Facepunch DLLs in your project.
+2. Pass reference to `FacepunchTransportProvider` scriptable object from `Netick/Transports/Facepunch` to `StartAsHost` or and `StartAsClient` methods of Netick. [Using transport in Netick](https://netick.net/docs/2/articles/getting-started-guide/2-setting-up-the-game.html#transport)
+3. FacepunchTransport requires you to initialize SteamClient before starting the server. There is a MonoBehavior named `Facepunch Initializer` that can do that for you, place it on a game object in your starting scene.
 
-Requirements
-- Facepunch.Steamworks (https://github.com/Facepunch/Facepunch.Steamworks) (https://wiki.facepunch.com/steamworks/Setting_Up)
-- Netick 2 for Unity (https://github.com/NetickNetworking/NetickForUnity)
-- Unity 2021.3 or newer
- 
-![Screenshot_1](https://user-images.githubusercontent.com/59656122/211421510-d57db421-8b6c-4cd2-8d67-5304a0a71bb5.png)
+## Usage
+Facepunch provides several APIs for games, including matchmaking. In order to connect using Facepunch you need to pass LobbyID (or friend's SteamID) as an address to `Connect` method of sandbox. 
+```cs
+var sandbox = Netick.Unity.Network.StartAsClient(Transport, Port, SandboxPrefab);
+sandbox.Connect(Port, CurrentLobby.Owner.Id.ToString());
+```
+For a complete example of the lobby usage check `Assets/NetickSteamDemo/SteamNetick` scene. 
 
-![Screenshot_2](https://user-images.githubusercontent.com/59656122/211421790-85109680-e461-4908-8463-4dff441b56cb.png)
-
-![Screenshot_3](https://user-images.githubusercontent.com/59656122/211423166-1cfd4437-ddd7-4dac-aa58-225e15d917e8.png)
-
- Credits: 
-  - Adevian: Showed me how to write the Netick 1 transport
-  - Me: Updated netick 1 transport to netick 2, wrote the SteamNetworkingSockets code
-  - Karrar: Created Netick
-  - Maclay: Helped cleanup the project files & code
+## Documentation
+[Netick](https://netick.net/docs/2) | [Facepunch](https://wiki.facepunch.com/steamworks/) | [Steamworks](https://partner.steamgames.com/doc/home)
