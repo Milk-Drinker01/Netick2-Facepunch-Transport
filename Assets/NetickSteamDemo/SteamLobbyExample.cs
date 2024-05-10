@@ -1,10 +1,9 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using Netick.Unity;
-using Netick.Transport;
+using Netick.Transports.Facepunch.Extras;
 using Netick.Transports.Facepunch;
 using Steamworks;
 using Steamworks.Data;
@@ -38,12 +37,12 @@ public class SteamLobbyExample : MonoBehaviour
         if (SteamClient.IsValid)
             InitLobbyCallbacks();
         else
-            FacepunchInitializer.OnInitializeCallbacks += InitLobbyCallbacks;
+            SteamInitializer.OnInitializeCallbacks += InitLobbyCallbacks;
     }
 
     void OnDestroy()
     {
-        FacepunchInitializer.OnInitializeCallbacks -= InitLobbyCallbacks;
+        SteamInitializer.OnInitializeCallbacks -= InitLobbyCallbacks;
         FacepunchTransport.OnNetickServerStarted -= OnNetickServerStarted;
         FacepunchTransport.OnNetickShutdownEvent -= OnNetickShutdown;
     }

@@ -3,8 +3,8 @@ using System.Collections;
 using Steamworks;
 using UnityEngine;
 
-namespace Netick.Transports.Facepunch {
-    public class FacepunchInitializer : MonoBehaviour {
+namespace Netick.Transports.Facepunch.Extras {
+    public class SteamInitializer : MonoBehaviour {
 
         [SerializeField]
         uint AppID = 480;
