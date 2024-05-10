@@ -10,9 +10,10 @@ namespace Netick.Transports.Facepunch.Extras {
         uint AppID = 480;
 
         void Awake() {
-            if (SteamClient.IsValid) return;
+            if (!SteamClient.IsValid) {
+                SteamClient.Init(AppID);
+            }
 
-            SteamClient.Init(AppID);
             StartCoroutine(EnsureValidity());
         }
         public static event Action OnInitializeCallbacks;
