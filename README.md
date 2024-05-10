@@ -22,7 +22,8 @@ For a complete example of the lobby usage check `Assets/NetickSteamDemo/SteamNet
 ## Demo Features
  - Steam Lobbies and matchmaking example
  - Create public, private, and friends only lobbies
- - Public lobby search with distance queries
+ - Join friends lobbies with the "Join Friend" button on steam
+ - Public lobby browser with distance queries
  - Steam command line to auto-join lobbies on startup, when the game is started by clicking "join friend" on steam
  - (TO DO) Voice Chat (will add when karrar updates netick to support sending data on the transport level)
 
