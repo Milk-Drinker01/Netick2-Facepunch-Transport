@@ -1,4 +1,4 @@
-# Netick Facepunch Transport
+# Netick 2 Facepunch Transport
 This repository contains source code of Facepunch transport as well as an example of its usage with Steam Lobby service.
 
 ## Requirements
