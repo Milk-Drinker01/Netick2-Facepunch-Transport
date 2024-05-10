@@ -19,5 +19,12 @@ sandbox.Connect(Port, CurrentLobby.Owner.Id.ToString());
 ```
 For a complete example of the lobby usage check `Assets/NetickSteamDemo/SteamNetick` scene. 
 
+## Demo Features
+ - Steam Lobbies and matchmaking example
+ - Create public, private, and friends only lobbies
+ - Public lobby search with distance queries
+ - Steam command line to auto-join lobbies on startup, when the game is started by clicking "join friend" on steam
+ - (TO DO) Voice Chat (will add when karrar updates netick to support sending data on the transport level)
+
 ## Additional Documentation
 [Netick](https://netick.net/docs/2) | [Facepunch](https://wiki.facepunch.com/steamworks/) | [Steamworks](https://partner.steamgames.com/doc/home)
