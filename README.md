@@ -4,6 +4,7 @@ This repository contains source code of Facepunch transport as well as an exampl
 ## Requirements
 - Unity 2021.3 or newer
 - [Netick 2 for Unity](https://github.com/NetickNetworking/NetickForUnity)
+- [Facepunch.Steamworks](https://github.com/Facepunch/Facepunch.Steamworks) (Included in project files)
 
 ## Installation
 1. Download .unitypackage from the release section and import it into your project. Uncheck the Plugins folder if you already have Facepunch DLLs in your project.
