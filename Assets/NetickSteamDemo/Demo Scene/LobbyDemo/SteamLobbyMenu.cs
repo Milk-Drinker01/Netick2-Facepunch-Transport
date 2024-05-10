@@ -52,7 +52,7 @@ namespace Netick.Examples.Steam
                 }
                 else
                 {
-                    bool IsOwner = SteamLobbyExample.CurrentLobby.IsOwnedBy(SteamInitializer.SteamID);
+                    bool IsOwner = SteamLobbyExample.CurrentLobby.IsOwnedBy(SteamClient.SteamId);
                     if (IsOwner)
                     {
                         StartServerButton.interactable = true;
@@ -105,7 +105,7 @@ namespace Netick.Examples.Steam
 
         public void JoinedLobby(Lobby lobby)
         {
-            bool IsOwner = lobby.IsOwnedBy(SteamInitializer.SteamID);
+            bool IsOwner = lobby.IsOwnedBy(SteamClient.SteamId);
             if (IsOwner)
             {
                 StartServerButton.interactable = true;
