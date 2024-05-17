@@ -7,8 +7,10 @@ namespace Netick.Transports.Facepunch {
 
         public bool ForceFlush;
         public SendType SteamSendType = SendType.NoNagle;
-        public Steamworks.Data.Connection Connection { get; set; }
 
+        public Steamworks.SteamId PlayerSteamID;
+        public Steamworks.Data.Connection Connection { get; set; }
+        
         public override int Mtu => 1200;
 
         public override IEndPoint EndPoint => new IPEndPoint(IPAddress.Any, 4050).ToNetickEndPoint();
