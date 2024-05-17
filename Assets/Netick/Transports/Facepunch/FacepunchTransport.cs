@@ -37,11 +37,20 @@ namespace Netick.Transports.Facepunch {
         public static event Action OnNetickClientStarted;
         public static event Action OnNetickShutdownEvent;
 
-        private static Dictionary<NetworkPlayer, SteamId> ConnectedPlayersSteamIDs;    //valid only for the server/host instance.
+        private static Dictionary<FacepunchConnection, SteamId> _connectedPlayersSteamIDs;    //valid only for the server/host instance.
         public static SteamId GetPlayerSteamID(NetworkPlayer player)
         {
-            if (ConnectedPlayersSteamIDs.TryGetValue(player, out SteamId id))
+            //return server player id
+            if (player.GetType() == typeof(Netick.Server))
+                return SteamID;
+
+            //return client player id
+            var networkConnection = (NetworkConnection)player;
+            var facepunchConnection = (FacepunchConnection)networkConnection.TransportConnection;
+
+            if (_connectedPlayersSteamIDs.TryGetValue(facepunchConnection, out SteamId id))
                 return id;
+
             Debug.LogError("Couldnt find players steam ID!");
             return 0;
         }
@@ -89,8 +98,7 @@ namespace Netick.Transports.Facepunch {
                         _steamworksServer = SteamNetworkingSockets.CreateRelaySocket<SocketManager>(port);
                         _steamworksServer.Interface = this;
 
-                        ConnectedPlayersSteamIDs = new Dictionary<NetworkPlayer, SteamId>();
-                        ConnectedPlayersSteamIDs.Add(NetworkPeer, SteamID);
+                        _connectedPlayersSteamIDs = new Dictionary<FacepunchConnection, SteamId>();
 
                         IsServer = true;
                         OnNetickServerStarted?.Invoke();
@@ -146,8 +154,8 @@ namespace Netick.Transports.Facepunch {
             if (InternalConnections.TryAdd(connection, facepunchConnection)) {
                 if (_logLevel <= LogLevel.Developer)
                     Debug.Log($"[{nameof(FacepunchTransport)}] - Connected with Steam user {info.Identity.SteamId}.");
+                _connectedPlayersSteamIDs.Add(facepunchConnection, info.Identity.SteamId);
                 NetworkPeer.OnConnected(InternalConnections[connection]);
-                ConnectedPlayersSteamIDs.Add(facepunchConnection.AssociatedNetworkConnection, info.Identity.SteamId);
             }
             else if (_logLevel <= LogLevel.Normal)
                 Debug.LogWarning($"[{nameof(FacepunchTransport)}] - Failed to connect client with ID {connection.Id}, client already connected.");
@@ -155,7 +163,7 @@ namespace Netick.Transports.Facepunch {
         }
 
         void ISocketManager.OnDisconnected(Steamworks.Data.Connection connection, ConnectionInfo info) {
-            ConnectedPlayersSteamIDs.Remove(InternalConnections[connection].AssociatedNetworkConnection);
+            _connectedPlayersSteamIDs.Remove(InternalConnections[connection]);
             NetworkPeer.OnDisconnected(InternalConnections[connection], TransportDisconnectReason.Timeout);
             InternalConnections.Remove(connection);
 
