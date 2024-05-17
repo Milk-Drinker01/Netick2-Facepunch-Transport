@@ -75,7 +75,6 @@ namespace Netick.Transports.Facepunch {
                 Debug.Log($"[{nameof(FacepunchTransport)}] - Initialized access to Steam Relay Network.");
 
             SteamID = SteamClient.SteamId;
-            Debug.Log(SteamID);
 
             if (_logLevel <= LogLevel.Developer)
                 Debug.Log($"[{nameof(FacepunchTransport)}] - Fetched user Steam ID.");
