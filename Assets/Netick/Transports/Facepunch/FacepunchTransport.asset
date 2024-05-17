@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SteamDataSendType: 1
   FlushMessages: 0
-  logLevel: 2
+  logLevel: 0

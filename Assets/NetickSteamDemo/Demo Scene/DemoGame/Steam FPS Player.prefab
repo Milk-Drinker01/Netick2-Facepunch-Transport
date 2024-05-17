@@ -342,7 +342,8 @@ MonoBehaviour:
   _sensitivityY: -1
   _ShootForce: 10
   _cameraParent: {fileID: 3369032719007731524}
-  ballPrefab: {fileID: 5294910979724857127, guid: 8737edaa406f70f45be2791a7efe89e5, type: 3}
+  _ballPrefab: {fileID: 5294910979724857127, guid: 8737edaa406f70f45be2791a7efe89e5, type: 3}
+  <SteamID>k__BackingField: 0
   <YawPitch>k__BackingField: {x: 0, y: 0}
   <Velocity>k__BackingField: {x: 0, y: 0, z: 0}
 --- !u!143 &1417749684482701243

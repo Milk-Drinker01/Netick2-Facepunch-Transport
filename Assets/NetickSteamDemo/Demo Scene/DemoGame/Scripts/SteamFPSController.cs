@@ -20,13 +20,13 @@ namespace Netick.Examples.Steam
         [SerializeField] private float _sensitivityY = -1f;
         [SerializeField] private float _ShootForce = 10f;
         [SerializeField] private Transform _cameraParent;
+        [SerializeField] private GameObject _ballPrefab;
         private CharacterController _CC;
         private Vector2 _camAngles;
 
-        public GameObject ballPrefab;
-
         // Networked properties
-        [Networked] public Vector2   YawPitch                     { get; set; }
+        [Networked] public ulong SteamID { get; set; }
+        [Networked] public Vector2 YawPitch { get; set; }
         [Networked(relevancy: Relevancy.InputSource)] Vector3 Velocity { get; set; }
 
         public override void NetworkStart()
@@ -42,6 +42,9 @@ namespace Netick.Examples.Steam
                 if (Sandbox.IsServer)
                     numSpheres = 0;
             }
+
+            if (Sandbox.IsServer)
+                SteamID = Transports.Facepunch.FacepunchTransport.GetPlayerSteamID((NetworkPeer)InputSource);
         }
 
         public override void OnInputSourceLeft()
@@ -103,7 +106,7 @@ namespace Netick.Examples.Steam
                     return;
                 numSpheres++;
                 Debug.Log($"{numSpheres} spheres have been spawned so far");
-                var ball = Sandbox.NetworkInstantiate(ballPrefab, transform.position + transform.forward + transform.up, Quaternion.identity);
+                var ball = Sandbox.NetworkInstantiate(_ballPrefab, transform.position + transform.forward + transform.up, Quaternion.identity);
                 ball.GetComponent<Rigidbody>().AddForce(transform.forward * _ShootForce, ForceMode.Impulse);
             }
         }
