@@ -44,7 +44,7 @@ namespace Netick.Examples.Steam
             }
 
             if (Sandbox.IsServer)
-                SteamID = Transports.Facepunch.FacepunchTransport.GetPlayerSteamID((NetworkPeer)InputSource);
+                SteamID = Transports.Facepunch.FacepunchTransport.GetPlayerSteamID(InputSource);
         }
 
         public override void OnInputSourceLeft()
