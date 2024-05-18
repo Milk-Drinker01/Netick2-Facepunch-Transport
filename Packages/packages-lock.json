@@ -7,7 +7,7 @@
       "dependencies": {
         "com.unity.nuget.mono-cecil": "1.11.4"
       },
-      "hash": "3d1495b12d510c4ecef4219045b4a4db9add936c"
+      "hash": "37c7c548bf78d295f9736d443f00c9eea08f6f6f"
     },
     "com.unity.collab-proxy": {
       "version": "2.2.0",

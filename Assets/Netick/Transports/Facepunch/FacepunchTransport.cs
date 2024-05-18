@@ -48,6 +48,7 @@ namespace Netick.Transports.Facepunch {
             return facepunchConnection.PlayerSteamID;
         }
 
+        private Queue<FacepunchConnection> _freeConnections = new Queue<FacepunchConnection>();
         public override void Init() {
             if (_logLevel <= LogLevel.Developer)
                 Debug.Log($"[{nameof(FacepunchTransport)}] - Initializing Transport");
@@ -62,6 +63,9 @@ namespace Netick.Transports.Facepunch {
             InitSteamworks();
 
             _buffer = new BitBuffer(createChunks: false);
+
+            for (int i = 0; i < Engine.MaxClients; i++)
+                _freeConnections.Enqueue(new FacepunchConnection());
         }
 
         async void InitSteamworks()
@@ -126,22 +130,40 @@ namespace Netick.Transports.Facepunch {
             _steamConnection?.Receive();
         }
 
+        public override void Disconnect(TransportConnection connection)
+        {
+            FacepunchConnection facepunchConnection = (FacepunchConnection)connection;
+            facepunchConnection.Connection.Flush();
+            facepunchConnection.Connection.Close();
+            InternalConnections.Remove(facepunchConnection.Connection);
+
+            if (_logLevel <= LogLevel.Developer)
+                Debug.Log($"[{nameof(FacepunchTransport)}] - Player {(facepunchConnection).PlayerSteamID} Disconnected from server.");
+        }
+
         #region SERVER
 
         void ISocketManager.OnConnecting(Steamworks.Data.Connection connection, ConnectionInfo info) {
-
-            if (_logLevel <= LogLevel.Developer)
-                Debug.Log($"[{nameof(FacepunchTransport)}] - Accepting connection from Steam user {info.Identity.SteamId}.");
-            connection.Accept();
+            if (Engine.ConnectedPlayers.Count == Engine.MaxClients)
+            {
+                if (_logLevel <= LogLevel.Developer)
+                    Debug.Log($"[{nameof(FacepunchTransport)}] - Declining connection from Steam user {info.Identity.SteamId}. (server is full)");
+                connection.Close();
+            }
+            else
+            {
+                if (_logLevel <= LogLevel.Developer)
+                    Debug.Log($"[{nameof(FacepunchTransport)}] - Accepting connection from Steam user {info.Identity.SteamId}.");
+                connection.Accept();
+            }
         }
 
         void ISocketManager.OnConnected(Steamworks.Data.Connection connection, ConnectionInfo info) {
-            var facepunchConnection = new FacepunchConnection {
-                Connection = connection,
-                ForceFlush = ForceFlush,
-                SteamSendType = SteamSendType,
-                PlayerSteamID = info.Identity.SteamId
-            };
+            var facepunchConnection = _freeConnections.Dequeue();
+            facepunchConnection.Connection = connection;
+            facepunchConnection.ForceFlush = ForceFlush;
+            facepunchConnection.SteamSendType = SteamSendType;
+            facepunchConnection.PlayerSteamID = info.Identity.SteamId;
 
             if (InternalConnections.TryAdd(connection, facepunchConnection)) {
                 if (_logLevel <= LogLevel.Developer)
@@ -154,6 +176,7 @@ namespace Netick.Transports.Facepunch {
         }
 
         void ISocketManager.OnDisconnected(Steamworks.Data.Connection connection, ConnectionInfo info) {
+            _freeConnections.Enqueue(InternalConnections[connection]);
             NetworkPeer.OnDisconnected(InternalConnections[connection], TransportDisconnectReason.Timeout);
             InternalConnections.Remove(connection);
 
@@ -176,11 +199,6 @@ namespace Netick.Transports.Facepunch {
                 return;
             _steamConnection = SteamNetworkingSockets.ConnectRelay<ConnectionManager>(ID, port);
             _steamConnection.Interface = this;
-        }
-
-        public override void Disconnect(TransportConnection connection) {
-            if (_logLevel <= LogLevel.Developer)
-                Debug.Log($"[{nameof(FacepunchTransport)}] - Disconnected from server.");
         }
 
         void IConnectionManager.OnConnecting(ConnectionInfo info) {
@@ -214,7 +232,7 @@ namespace Netick.Transports.Facepunch {
             clientToServerConnection = null;
 
             if (_logLevel <= LogLevel.Developer)
-                Debug.Log($"[{nameof(FacepunchTransport)}] - Disconnected Steam user {info.Identity.SteamId}.");
+                Debug.Log($"[{nameof(FacepunchTransport)}] - You have been removed from the server (either you were kicked, or the server shut down).");
 
             Network.Shutdown();
         }
