@@ -45,10 +45,13 @@ public class SteamVoiceChat : NetickBehaviour
 
     public override void NetworkFixedUpdate()
     {
-        if (Sandbox.LocalPlayer == null)
-            return;
-        if (Sandbox.LocalPlayer.PlayerObject == null)
-            return;
+        if (Sandbox.IsServer)
+        {
+            if (Sandbox.LocalPlayer == null)
+                return;
+            if (Sandbox.LocalPlayer.PlayerObject == null)
+                return;
+        }
         if (!SteamClient.IsValid)
             return;
 
@@ -84,7 +87,7 @@ public class SteamVoiceChat : NetickBehaviour
 
                 DecompressVoice(userNetworkID, len);
 
-                SendVoiceDataToClients(sandbox, userNetworkID, len);
+                SendVoiceDataToClients(sandbox, userNetworkID, len, sender);
             }
             else
             {
@@ -101,7 +104,7 @@ public class SteamVoiceChat : NetickBehaviour
         }
     }
 
-    unsafe void SendVoiceDataToClients(NetworkSandbox sandbox, int playerID, int length)
+    unsafe void SendVoiceDataToClients(NetworkSandbox sandbox, int playerID, int length, NetworkConnection clientsConnection = null)
     {
         //append player id to the end of the voice data buffer
         byte* idPointer = (byte*)&playerID;
@@ -110,7 +113,10 @@ public class SteamVoiceChat : NetickBehaviour
 
         //send the voice chat data
         foreach (NetworkConnection conn in sandbox.ConnectedClients)
-            conn.SendData(VoiceDataID, compressedVoiceData, length + 4, TransportDeliveryMethod.Unreliable);
+        {
+            if (conn != clientsConnection)
+                conn.SendData(VoiceDataID, compressedVoiceData, length + 4, TransportDeliveryMethod.Unreliable);
+        }
     }
 
     void DecompressVoice(int clientID, int length)
