@@ -57,7 +57,7 @@ public class SteamVoiceChat : NetickBehaviour
             if (Sandbox.IsServer)
                 SendVoiceDataToClients(Sandbox, 0, numBytes);
             else
-                Sandbox.ConnectedServer.SendData(VoiceDataID, localVoiceStream.GetBuffer(), numBytes, TransportDeliveryMethod.Unreliable);
+                Sandbox.ConnectedServer.SendData(VoiceDataID, compressedVoiceData, numBytes, TransportDeliveryMethod.Unreliable);
         }
 
         SteamUser.VoiceRecord = Input.GetKey(KeyCode.V);
@@ -73,17 +73,21 @@ public class SteamVoiceChat : NetickBehaviour
                 for (int i = 0; i < len; i++)
                     compressedVoiceData[i] = data[i];
 
-                DecompressVoice(sender.PlayerId, len);
+                NetworkObject NO = (NetworkObject)(sandbox.ConnectedPlayers[sender.PlayerId].PlayerObject);
+                int userId = NO.Id;
 
-                SendVoiceDataToClients(sandbox, sender.PlayerId, len);
+                DecompressVoice(userId, len);
+
+                SendVoiceDataToClients(sandbox, userId, len);
             }
             else
             {
+                Debug.Log("received");
                 for (int i = 0; i < len; i++)
                     compressedVoiceData[i] = data[i];
 
                 int userId = BitConverter.ToInt32(compressedVoiceData, len - 4);
-
+                Debug.Log(userId);
                 DecompressVoice(userId, len - 4);
             }
         }
@@ -110,8 +114,8 @@ public class SteamVoiceChat : NetickBehaviour
         compressedDataReceived.Position = 0;
 
         byte[] outputBuffer = uncompressedDataReceived.GetBuffer();
-        NetworkObject NO = (NetworkObject)(Sandbox.ConnectedPlayers[clientID].PlayerObject);
-        if (NO.TryGetComponent<SteamVoiceClient>(out SteamVoiceClient cl))
+        
+        if (Sandbox.TryGetBehaviour<SteamVoiceClient>(clientID, out SteamVoiceClient cl))
             cl.VoiceDataReceived(outputBuffer, uncompressedWritten);
         uncompressedDataReceived.Position = 0;
     }
