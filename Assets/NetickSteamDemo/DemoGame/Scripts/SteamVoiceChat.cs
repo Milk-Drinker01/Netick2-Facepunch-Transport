@@ -11,6 +11,8 @@ public class SteamVoiceChat : NetickBehaviour
 {
     const int VoiceDataID = 0;
 
+    public bool PollInUpdate = false;
+
     private MemoryStream localVoiceStream;
     private MemoryStream compressedDataReceived;
     private MemoryStream uncompressedDataReceived;
@@ -43,7 +45,19 @@ public class SteamVoiceChat : NetickBehaviour
         voiceBuffer = new float[voiceBufferSize];
     }
 
+    public override void NetworkUpdate()
+    {
+        if (PollInUpdate)
+            CheckAndSendVoiceData();
+    }
+
     public override void NetworkFixedUpdate()
+    {
+        if (!PollInUpdate)
+            CheckAndSendVoiceData();
+    }
+
+    void CheckAndSendVoiceData()
     {
         if (Sandbox.IsServer)
         {
