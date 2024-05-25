@@ -11,7 +11,14 @@ public class SteamVoiceChat : NetickBehaviour
 {
     const int VoiceDataID = 0;
 
-    public bool PollInUpdate = false;
+    private enum VoicePollType
+    {
+        Update,
+        FixedUpdate
+    }
+
+    [SerializeField]
+    private VoicePollType VoicePollMethod = VoicePollType.FixedUpdate;
 
     private MemoryStream localVoiceStream;
     private MemoryStream compressedDataReceived;
@@ -47,13 +54,13 @@ public class SteamVoiceChat : NetickBehaviour
 
     public override void NetworkUpdate()
     {
-        if (PollInUpdate)
+        if (VoicePollMethod == VoicePollType.Update)
             CheckAndSendVoiceData();
     }
 
     public override void NetworkFixedUpdate()
     {
-        if (!PollInUpdate)
+        if (VoicePollMethod == VoicePollType.FixedUpdate)
             CheckAndSendVoiceData();
     }
 
@@ -74,7 +81,7 @@ public class SteamVoiceChat : NetickBehaviour
         {
             int numBytes = Steamworks.SteamUser.ReadVoiceData(localVoiceStream);
             localVoiceStream.Position = 0;
-            //myCompressedVoiceData = voiceStream.GetBuffer();
+
             if (Sandbox.IsServer)
                 SendVoiceDataToClients(Sandbox, ((GameObject)Sandbox.LocalPlayer.PlayerObject).GetComponent<NetworkObject>().Id, numBytes);
             else
@@ -98,7 +105,8 @@ public class SteamVoiceChat : NetickBehaviour
                 NetworkObject NO = GO.GetComponent<NetworkObject>();
                 
                 int userNetworkID = NO.Id;
-
+                
+                //play back the voice chat on host
                 DecompressVoice(userNetworkID, len);
 
                 SendVoiceDataToClients(sandbox, userNetworkID, len, sender);
@@ -109,10 +117,7 @@ public class SteamVoiceChat : NetickBehaviour
                     compressedVoiceData[i] = data[i];
 
                 int userNetworkID = BitConverter.ToInt32(compressedVoiceData, len - 4);
-                //Debug.Log("--------------");
-                //Debug.Log(Time.frameCount);
-                //Debug.Log(len);
-                //Debug.Log(userNetworkID);
+
                 DecompressVoice(userNetworkID, len - 4);
             }
         }
