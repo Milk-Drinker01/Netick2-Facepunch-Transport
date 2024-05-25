@@ -73,7 +73,9 @@ public class SteamVoiceChat : NetickBehaviour
                 for (int i = 0; i < len; i++)
                     compressedVoiceData[i] = data[i];
 
-                NetworkObject NO = (NetworkObject)(sandbox.ConnectedPlayers[sender.PlayerId].PlayerObject);
+                GameObject GO = (GameObject)(sender.PlayerObject);
+                NetworkObject NO = GO.GetComponent<NetworkObject>();
+                
                 int userId = NO.Id;
 
                 DecompressVoice(userId, len);
