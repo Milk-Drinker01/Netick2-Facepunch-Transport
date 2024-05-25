@@ -20,5 +20,14 @@ namespace Netick.Transports.Facepunch {
             if (ForceFlush)
                 Connection.Flush();
         }
+
+        public override void SendUserData(IntPtr ptr, int length, TransportDeliveryMethod transportDeliveryMethod)
+        {
+            switch(transportDeliveryMethod)
+            {
+                case TransportDeliveryMethod.Unreliable: Connection.SendMessage(ptr, length, SteamSendType); break;
+                case TransportDeliveryMethod.Reliable: Connection.SendMessage(ptr, length, SendType.Reliable); break;
+            }
+        }
     }
 }

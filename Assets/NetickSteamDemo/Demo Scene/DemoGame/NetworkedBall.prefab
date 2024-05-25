@@ -189,4 +189,10 @@ MonoBehaviour:
   PositionPrecision: 3
   Settings: -1
   TransformSpace: 0
+  EnablePredictionErrorCorrectionSmoothing: 0
+  InterpolationMultiplier: 20
+  CorrectionMultiplier: 3
+  CorrectionMaxBlendAlpha: 0.7
+  PositionTeleportThreshold: 50
+  RotationTeleportThreshold: 10
   _interpolationSource: 0
