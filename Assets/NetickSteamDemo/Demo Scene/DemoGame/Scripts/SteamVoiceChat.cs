@@ -45,6 +45,10 @@ public class SteamVoiceChat : NetickBehaviour
 
     public override void NetworkFixedUpdate()
     {
+        if (Sandbox.LocalPlayer == null)
+            return;
+        if (Sandbox.LocalPlayer.PlayerObject == null)
+            return;
         if (!SteamClient.IsValid)
             return;
 
@@ -55,7 +59,7 @@ public class SteamVoiceChat : NetickBehaviour
             localVoiceStream.Position = 0;
             //myCompressedVoiceData = voiceStream.GetBuffer();
             if (Sandbox.IsServer)
-                SendVoiceDataToClients(Sandbox, 0, numBytes);
+                SendVoiceDataToClients(Sandbox, ((GameObject)Sandbox.LocalPlayer.PlayerObject).GetComponent<NetworkObject>().Id, numBytes);
             else
                 Sandbox.ConnectedServer.SendData(VoiceDataID, compressedVoiceData, numBytes, TransportDeliveryMethod.Unreliable);
         }
@@ -76,20 +80,23 @@ public class SteamVoiceChat : NetickBehaviour
                 GameObject GO = (GameObject)(sender.PlayerObject);
                 NetworkObject NO = GO.GetComponent<NetworkObject>();
                 
-                int userId = NO.Id;
+                int userNetworkID = NO.Id;
 
-                DecompressVoice(userId, len);
+                DecompressVoice(userNetworkID, len);
 
-                SendVoiceDataToClients(sandbox, userId, len);
+                SendVoiceDataToClients(sandbox, userNetworkID, len);
             }
             else
             {
                 for (int i = 0; i < len; i++)
                     compressedVoiceData[i] = data[i];
 
-                int userId = BitConverter.ToInt32(compressedVoiceData, len - 4);
-                Debug.Log(userId);
-                DecompressVoice(userId, len - 4);
+                int userNetworkID = BitConverter.ToInt32(compressedVoiceData, len - 4);
+                //Debug.Log("--------------");
+                //Debug.Log(Time.frameCount);
+                //Debug.Log(len);
+                //Debug.Log(userNetworkID);
+                DecompressVoice(userNetworkID, len - 4);
             }
         }
     }
