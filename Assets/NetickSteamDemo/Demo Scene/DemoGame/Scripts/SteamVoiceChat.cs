@@ -84,7 +84,6 @@ public class SteamVoiceChat : NetickBehaviour
             }
             else
             {
-                Debug.Log("received");
                 for (int i = 0; i < len; i++)
                     compressedVoiceData[i] = data[i];
 
