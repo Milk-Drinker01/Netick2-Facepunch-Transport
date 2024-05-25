@@ -112,7 +112,7 @@ public class SteamVoiceChat : NetickBehaviour
             }
             else
             {
-                for (int i = 0; i < len; i++)
+                for (int i = 0; i < length; i++)
                     compressedVoiceData[i] = data[i];
 
                 int userNetworkID = BitConverter.ToInt32(compressedVoiceData, length - 4);
