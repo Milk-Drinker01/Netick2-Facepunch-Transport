@@ -92,33 +92,32 @@ public class SteamVoiceChat : NetickBehaviour
         //UnityEngine.Profiling.Profiler.EndSample();
     }
 
-    unsafe void OnDataReceived(NetworkSandbox sandbox, NetworkConnection sender, byte id, byte* data, int len, TransportDeliveryMethod transportDeliveryMethod)
+    unsafe void OnDataReceived(NetworkSandbox sandbox, NetworkConnection sender, byte id, byte* data, int length, TransportDeliveryMethod transportDeliveryMethod)
     {
         if (id == VoiceDataID)
         {
             if (sandbox.IsServer)
             {
-                for (int i = 0; i < len; i++)
+                for (int i = 0; i < length; i++)
                     compressedVoiceData[i] = data[i];
 
                 GameObject GO = (GameObject)(sender.PlayerObject);
                 NetworkObject NO = GO.GetComponent<NetworkObject>();
-                
                 int userNetworkID = NO.Id;
                 
                 //play back the voice chat on host
-                DecompressVoice(userNetworkID, len);
+                DecompressVoice(userNetworkID, length);
 
-                SendVoiceDataToClients(sandbox, userNetworkID, len, sender);
+                SendVoiceDataToClients(sandbox, userNetworkID, length, sender);
             }
             else
             {
                 for (int i = 0; i < len; i++)
                     compressedVoiceData[i] = data[i];
 
-                int userNetworkID = BitConverter.ToInt32(compressedVoiceData, len - 4);
+                int userNetworkID = BitConverter.ToInt32(compressedVoiceData, length - 4);
 
-                DecompressVoice(userNetworkID, len - 4);
+                DecompressVoice(userNetworkID, length - 4);
             }
         }
     }
