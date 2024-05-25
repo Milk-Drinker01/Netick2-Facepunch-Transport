@@ -98,7 +98,7 @@ public class SteamVoiceChat : NetickBehaviour
 
         //send the voice chat data
         foreach (NetworkConnection conn in sandbox.ConnectedClients)
-            conn.SendData(5, compressedVoiceData, length + 4, TransportDeliveryMethod.Unreliable);
+            conn.SendData(VoiceDataID, compressedVoiceData, length + 4, TransportDeliveryMethod.Unreliable);
     }
 
     void DecompressVoice(int clientID, int length)
