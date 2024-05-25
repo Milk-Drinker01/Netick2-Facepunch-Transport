@@ -258,7 +258,7 @@ GameObject:
   - component: {fileID: 55311550236507960}
   - component: {fileID: 6851739389618402669}
   - component: {fileID: 1417749684482701243}
-  - component: {fileID: 8249225630829724334}
+  - component: {fileID: -9028405599534148941}
   - component: {fileID: 8096484342670954201}
   m_Layer: 0
   m_Name: Steam FPS Player
@@ -372,7 +372,7 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &8249225630829724334
+--- !u!114 &-9028405599534148941
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

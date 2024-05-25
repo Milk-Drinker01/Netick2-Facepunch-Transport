@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/NetickSteamDemo/SteamNetick.unity
+    path: Assets/NetickSteamDemos/SteamNetick.unity
     guid: d9bdde016645d2b4195fe3de5b49e870
   m_configObjects: {}
