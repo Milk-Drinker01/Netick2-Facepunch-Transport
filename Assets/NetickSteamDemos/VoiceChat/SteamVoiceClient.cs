@@ -23,6 +23,8 @@ namespace Netick.Transports.Facepunch.Extras
         private int dataPosition;
         private int dataReceived;
 
+        private int playerID;
+
         public override unsafe void NetworkStart()
         {
             optimalRate = SteamUser.OptimalSampleRate;
@@ -34,13 +36,16 @@ namespace Netick.Transports.Facepunch.Extras
             source.Play();
 
             if (Sandbox.IsServer && Sandbox.TryGetComponent<SteamVoiceChat>(out _steamVoiceChat))
-                _steamVoiceChat.ConnectionIdToPlayerObjectID.Add(InputSource.PlayerId, Object.Id);
+            {
+                playerID = InputSource.PlayerId;
+                _steamVoiceChat.ConnectionIdToPlayerObjectID.Add(playerID, Object.Id);
+            }
         }
 
         public override void NetworkDestroy()
         {
             if (Sandbox.IsServer && _steamVoiceChat != null)
-                _steamVoiceChat.ConnectionIdToPlayerObjectID.Remove(InputSource.PlayerId);
+                _steamVoiceChat.ConnectionIdToPlayerObjectID.Remove(playerID);
         }
 
         private void OnAudioRead(float[] data)
