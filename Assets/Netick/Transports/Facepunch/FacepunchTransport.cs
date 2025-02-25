@@ -234,7 +234,7 @@ namespace Netick.Transports.Facepunch {
             if (_logLevel <= LogLevel.Developer)
                 Debug.Log($"[{nameof(FacepunchTransport)}] - You have been removed from the server (either you were kicked, or the server shut down).");
 
-            Network.Shutdown();
+            Network.Shutdown(true);
         }
 
         unsafe void IConnectionManager.OnMessage(IntPtr data, int size, long messageNum, long recvTime, int channel) {
