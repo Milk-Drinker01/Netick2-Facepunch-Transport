@@ -23,6 +23,7 @@ namespace Netick.Examples.Steam
         [SerializeField] private GameObject _ballPrefab;
         private CharacterController _CC;
         private Vector2 _camAngles;
+        private bool cursorLocked;
 
         // Networked properties
         [Networked] public ulong SteamID { get; set; }
@@ -41,10 +42,27 @@ namespace Netick.Examples.Steam
                 cam.transform.localRotation = Quaternion.identity;
                 if (Sandbox.IsServer)
                     numSpheres = 0;
+
+                ToggleCursor();
             }
 
             if (Sandbox.IsServer)
                 SteamID = Transports.Facepunch.FacepunchTransport.GetPlayerSteamID(InputSource);
+        }
+
+        void ToggleCursor()
+        {
+            cursorLocked = !cursorLocked;
+            if (cursorLocked)
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+            }
+            else
+            {
+                Cursor.lockState = CursorLockMode.Confined;
+                Cursor.visible = true;
+            }
         }
 
         public override void OnInputSourceLeft()
@@ -58,17 +76,22 @@ namespace Netick.Examples.Steam
             if (!IsInputSource || !Sandbox.InputEnabled)
                 return;
 
+            if (Input.GetKeyDown(KeyCode.Escape))
+                ToggleCursor();
+
             var networkInput = Sandbox.GetInput<SteamFPSInput>();
 
             networkInput.Movement = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
             networkInput.ShootInput |= Input.GetMouseButtonDown(0);
             networkInput.SprintInput = Input.GetKey(KeyCode.LeftShift);
 
-            Vector2 input = new Vector2(Input.GetAxisRaw("Mouse X") * _sensitivityX, Input.GetAxisRaw("Mouse Y") * _sensitivityY);
-            networkInput.YawPitch += input;
+            Vector2 cameraInput = new Vector2(Input.GetAxisRaw("Mouse X") * _sensitivityX, Input.GetAxisRaw("Mouse Y") * _sensitivityY);
+            if (Cursor.lockState != CursorLockMode.Locked)
+                cameraInput *= 0;
+            networkInput.YawPitch += cameraInput;
 
             // we apply the rotation in update too to have smooth camera control
-            _camAngles = ClampAngles(_camAngles.x + input.x, _camAngles.y + input.y);
+            _camAngles = ClampAngles(_camAngles.x + cameraInput.x, _camAngles.y + cameraInput.y);
             ApplyRotations(_camAngles);
 
             Sandbox.SetInput<SteamFPSInput>(networkInput);

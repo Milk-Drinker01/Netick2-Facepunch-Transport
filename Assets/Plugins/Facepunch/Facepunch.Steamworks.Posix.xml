@@ -1037,6 +1037,14 @@
             Remove this server from our favourite list
             </summary>
         </member>
+        <member name="M:Steamworks.ISteamMatchmakingServers.HasServerResponded(Steamworks.Data.HServerListRequest,System.Int32)">
+            <summary>
+            Read gameserveritem_t.m_bHadSuccessfulResponse without allocating the struct on the heap
+            </summary>
+            <param name="hRequest"></param>
+            <param name="iServer"></param>
+            <returns></returns>
+        </member>
         <member name="P:Steamworks.ConnectionManager.Interface">
             <summary>
             An optional interface to use instead of deriving
@@ -2855,6 +2863,109 @@
             <param name="steamid">The SteamId of the user to store stats for.</param>
             <returns>A task describing the progress and result of the commit.</returns>
         </member>
+        <member name="M:Steamworks.SteamTimeline.SetTimelineTooltip(System.String,System.Single)">
+            <summary>
+            Sets a description for the current game state in the timeline. These help the user to find specific moments in the timeline when saving clips. Setting a
+            new state description replaces any previous description.
+            </summary>
+        </member>
+        <member name="M:Steamworks.SteamTimeline.ClearTimelineTooltip(System.Single)">
+            <summary>
+            Clears the previous set game state in the timeline.
+            </summary>
+        </member>
+        <member name="M:Steamworks.SteamTimeline.AddInstantaneousTimelineEvent(System.String,System.String,System.String,System.UInt32,System.Single,Steamworks.TimelineEventClipPriority)">
+            <summary>
+            Use this to mark an event on the Timeline. This event will be instantaneous. (See <see cref="M:Steamworks.SteamTimeline.AddRangeTimelineEvent(System.String,System.String,System.String,System.UInt32,System.Single,System.Single,Steamworks.TimelineEventClipPriority)"/> to add events that happened over time.)
+            </summary>
+        </member>
+        <member name="M:Steamworks.SteamTimeline.AddRangeTimelineEvent(System.String,System.String,System.String,System.UInt32,System.Single,System.Single,Steamworks.TimelineEventClipPriority)">
+            <summary>
+            Use this to mark an event on the Timeline that takes some amount of time to complete.
+            </summary>
+        </member>
+        <member name="M:Steamworks.SteamTimeline.StartRangeTimelineEvent(System.String,System.String,System.String,System.UInt32,System.Single,Steamworks.TimelineEventClipPriority)">
+            <summary>
+            Use this to mark the start of an event on the Timeline that takes some amount of time to complete. The duration of the event is determined by a matching call
+            to <see cref="M:Steamworks.SteamTimeline.EndRangeTimelineEvent(Steamworks.Data.TimelineEventHandle,System.Single)"/>. If the game wants to cancel an event in progress, they can do that with a call to <see cref="M:Steamworks.SteamTimeline.RemoveTimelineEvent(Steamworks.Data.TimelineEventHandle)"/>.
+            </summary>
+        </member>
+        <member name="M:Steamworks.SteamTimeline.UpdateRangeTimelineEvent(Steamworks.Data.TimelineEventHandle,System.String,System.String,System.String,System.UInt32,Steamworks.TimelineEventClipPriority)">
+            <summary>
+            Use this to update the details of an event that was started with <see cref="M:Steamworks.SteamTimeline.StartRangeTimelineEvent(System.String,System.String,System.String,System.UInt32,System.Single,Steamworks.TimelineEventClipPriority)"/>.
+            </summary>
+        </member>
+        <member name="M:Steamworks.SteamTimeline.EndRangeTimelineEvent(Steamworks.Data.TimelineEventHandle,System.Single)">
+            <summary>
+            Use this to identify the end of an event that was started with <see cref="M:Steamworks.SteamTimeline.StartRangeTimelineEvent(System.String,System.String,System.String,System.UInt32,System.Single,Steamworks.TimelineEventClipPriority)"/>.
+            </summary>
+        </member>
+        <member name="M:Steamworks.SteamTimeline.RemoveTimelineEvent(Steamworks.Data.TimelineEventHandle)">
+            <summary>
+            Use this to remove a Timeline event that was previously added.
+            </summary>
+        </member>
+        <member name="M:Steamworks.SteamTimeline.DoesEventRecordingExist(Steamworks.Data.TimelineEventHandle)">
+            <summary>
+            Use this to determine if video recordings exist for the specified event. This can be useful when the game needs to decide whether or not to show a control
+            that will call <see cref="M:Steamworks.SteamTimeline.OpenOverlayToTimelineEvent(Steamworks.Data.TimelineEventHandle)"/>.
+            </summary>
+        </member>
+        <member name="M:Steamworks.SteamTimeline.StartGamePhase">
+            <summary>
+            Use this to start a game phase. Game phases allow the user to navigate their background recordings and clips. Exactly what a game phase means will vary game
+            to game, but the game phase should be a section of gameplay that is usually between 10 minutes and a few hours in length, and should be the main way a user
+            would think to divide up the game. These are presented to the user in a UI that shows the date the game was played, with one row per game slice. Game phases
+            should be used to mark sections of gameplay that the user might be interested in watching.
+            </summary>
+        </member>
+        <member name="M:Steamworks.SteamTimeline.EndGamePhase">
+            <summary>
+            Use this to end a game phase that was started with <see cref="M:Steamworks.SteamTimeline.StartGamePhase"/>.
+            </summary>
+        </member>
+        <member name="M:Steamworks.SteamTimeline.SetGamePhaseId(System.String)">
+            <summary>
+            The phase ID is used to let the game identify which phase it is referring to in calls to <see cref="M:Steamworks.SteamTimeline.DoesGamePhaseRecordingExist(System.String)"/> or
+            <see cref="M:Steamworks.SteamTimeline.OpenOverlayToGamePhase(System.String)"/>. It may also be used to associated multiple phases with each other.
+            </summary>
+            <param name="phaseId">A game-provided persistent ID for a game phase. This could be a the match ID in a multiplayer game, a chapter name in a single player game, the ID of a character, etc.</param>
+        </member>
+        <member name="M:Steamworks.SteamTimeline.DoesGamePhaseRecordingExist(System.String)">
+            <summary>
+            Use this to determine if video recordings exist for the specified game phase. This can be useful when the game needs to decide whether or not to show a control that will call <see cref="M:Steamworks.SteamTimeline.OpenOverlayToGamePhase(System.String)"/>.
+            </summary>
+        </member>
+        <member name="M:Steamworks.SteamTimeline.AddGamePhaseTag(System.String,System.String,System.String,System.UInt32)">
+            <summary>
+            Use this to add a game phase tag. Phase tags represent data with a well defined set of options, which could be data such as match resolution, hero played, game mode, etc. Tags can have an icon
+            in addition to a text name. Multiple tags within the same group may be added per phase and all will be remembered. For example, this may be called multiple times for a "Bosses Defeated" group,
+            with different names and icons for each boss defeated during the phase, all of which will be shown to the user.
+            </summary>
+        </member>
+        <member name="M:Steamworks.SteamTimeline.SetGamePhaseAttribute(System.String,System.String,System.UInt32)">
+            <summary>
+            Use this to add a game phase attribute. Phase attributes represent generic text fields that can be updated throughout the duration of the phase. They are meant to be used for phase metadata
+            that is not part of a well defined set of options. For example, a KDA attribute that starts with the value "0/0/0" and updates as the phase progresses, or something like a played-entered character
+            name. Attributes can be set as many times as the game likes with SetGamePhaseAttribute, and only the last value will be shown to the user.
+            </summary>
+        </member>
+        <member name="M:Steamworks.SteamTimeline.SetTimelineGameMode(Steamworks.TimelineGameMode)">
+            <summary>
+            Changes the color of the timeline bar. See <see cref="T:Steamworks.TimelineGameMode"/> for how to use each value.
+            </summary>
+        </member>
+        <member name="M:Steamworks.SteamTimeline.OpenOverlayToGamePhase(System.String)">
+            <summary>
+            Opens the Steam overlay to the section of the timeline represented by the game phase.
+            </summary>
+        </member>
+        <member name="M:Steamworks.SteamTimeline.OpenOverlayToTimelineEvent(Steamworks.Data.TimelineEventHandle)">
+            <summary>
+            Opens the Steam overlay to the section of the timeline represented by the timeline event. This event must be in the current game session, since <see cref="T:Steamworks.Data.TimelineEventHandle"/> values are not
+            valid for future runs of the game.
+            </summary>
+        </member>
         <member name="T:Steamworks.SteamUGC">
             <summary>
             Functions for accessing and manipulating Steam user information.
@@ -3187,10 +3298,8 @@
         </member>
         <member name="M:Steamworks.SteamUserStats.RequestCurrentStats">
             <summary>
-            Asynchronously request the user's current stats and achievements from the server.
-            You must always call this first to get the initial status of stats and achievements.
-            Only after the resulting callback comes back can you start calling the rest of the stats 
-            and achievement functions for the current user.
+            This call is no longer required as it is managed by the Steam client. The game stats and achievements
+            will be synchronized with Steam before the game process begins.
             </summary>
         </member>
         <member name="M:Steamworks.SteamUserStats.RequestGlobalStatsAsync(System.Int32)">
@@ -3523,6 +3632,27 @@
         <member name="P:Steamworks.Friend.IsSnoozing">
             <summary>
             Returns true if this friend is marked as snoozing
+            </summary>
+        </member>
+        <member name="P:Steamworks.Friend.Name">
+            <summary>
+            Returns the player's current Steam name.
+            <remarks>
+              Steam returns nicknames here if "Append nicknames to friends' names" is disabled in the Steam client.
+            </remarks> 
+            </summary>
+        </member>
+        <member name="P:Steamworks.Friend.Nickname">
+            <summary>
+            Returns the nickname that was set for this Steam player, if any.
+            <remarks>
+              Steam will never return nicknames if "Append nicknames to friends' names" is disabled in the Steam client.
+            </remarks>
+            </summary>
+        </member>
+        <member name="P:Steamworks.Friend.NameHistory">
+            <summary>
+            Returns the player's Steam name history.
             </summary>
         </member>
         <member name="M:Steamworks.Friend.InviteToGame(System.String)">

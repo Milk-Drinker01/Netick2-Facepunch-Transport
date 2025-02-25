@@ -32,14 +32,10 @@ namespace Netick.Examples.Steam
             else
                 Destroy(gameObject);
         }
-
-        bool locked;
+        
         private bool WasRunningLastFrame;
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Escape))
-                ToggleCursor();
-
             bool IsRunning = Netick.Unity.Network.IsRunning;
 
             if (WasRunningLastFrame != IsRunning)
@@ -68,21 +64,6 @@ namespace Netick.Examples.Steam
             }
 
             WasRunningLastFrame = IsRunning;
-        }
-
-        void ToggleCursor()
-        {
-            locked = !locked;
-            if (locked)
-            {
-                Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false;
-            }
-            else
-            {
-                Cursor.lockState = CursorLockMode.Confined;
-                Cursor.visible = true;
-            }
         }
 
         public void ClearLobbyList()
@@ -128,7 +109,12 @@ namespace Netick.Examples.Steam
 
         public void ResetLobbyCamera()
         {
-            FindObjectOfType<Camera>().transform.SetParent(null);
+            Camera cam = FindObjectOfType<Camera>();
+            if (cam != null)
+                cam.transform.SetParent(null);
+
+            Cursor.lockState = CursorLockMode.Confined;
+            Cursor.visible = true;
         }
     }
 }

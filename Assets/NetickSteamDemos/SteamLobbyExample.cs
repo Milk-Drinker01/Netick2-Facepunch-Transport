@@ -117,7 +117,6 @@ public class SteamLobbyExample : MonoBehaviour
         }
     }
 
-
     #region Lobby Stuff
 
     LobbyType _lobbyType;
@@ -248,10 +247,6 @@ public class SteamLobbyExample : MonoBehaviour
         Netick.Unity.Network.StartAsHost(Transport, Port, SandboxPrefab);
     }
 
-    public void StopGameServer()
-    {
-        DisconnectFromServer();
-    }
     #endregion
 
     #region Client Stuff
@@ -268,11 +263,6 @@ public class SteamLobbyExample : MonoBehaviour
 
         var sandbox = Netick.Unity.Network.StartAsClient(Transport, Port, SandboxPrefab);
         sandbox.Connect(Port, CurrentLobby.Owner.Id.ToString());
-    }
-
-    public void DisconnectedFromHostServer()
-    {
-        Debug.Log("Disconnected");
     }
     #endregion
 
