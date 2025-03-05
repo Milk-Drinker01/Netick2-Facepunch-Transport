@@ -5,9 +5,6 @@ using Steamworks.Data;
 namespace Netick.Transports.Facepunch {
     public class FacepunchConnection : TransportConnection {
 
-        public bool ForceFlush;
-        public SendType SteamSendType = SendType.NoNagle;
-
         public Steamworks.SteamId PlayerSteamID;
         public Steamworks.Data.Connection Connection { get; set; }
         
@@ -16,8 +13,8 @@ namespace Netick.Transports.Facepunch {
         public override IEndPoint EndPoint => new IPEndPoint(IPAddress.Any, 4050).ToNetickEndPoint();
 
         public override void Send(IntPtr data, int length) {
-            Connection.SendMessage(data, length, SteamSendType);
-            if (ForceFlush)
+            Connection.SendMessage(data, length, FacepunchTransport.SteamSendType);
+            if (FacepunchTransport.ForceFlush)
                 Connection.Flush();
         }
 
@@ -25,7 +22,7 @@ namespace Netick.Transports.Facepunch {
         {
             switch(transportDeliveryMethod)
             {
-                case TransportDeliveryMethod.Unreliable: Connection.SendMessage(ptr, length, SteamSendType); break;
+                case TransportDeliveryMethod.Unreliable: Connection.SendMessage(ptr, length, FacepunchTransport.SteamSendType); break;
                 case TransportDeliveryMethod.Reliable: Connection.SendMessage(ptr, length, SendType.Reliable); break;
             }
         }

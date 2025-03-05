@@ -161,8 +161,6 @@ namespace Netick.Transports.Facepunch {
         void ISocketManager.OnConnected(Steamworks.Data.Connection connection, ConnectionInfo info) {
             var facepunchConnection = _freeConnections.Dequeue();
             facepunchConnection.Connection = connection;
-            facepunchConnection.ForceFlush = ForceFlush;
-            facepunchConnection.SteamSendType = SteamSendType;
             facepunchConnection.PlayerSteamID = info.Identity.SteamId;
 
             if (InternalConnections.TryAdd(connection, facepunchConnection)) {
@@ -210,8 +208,6 @@ namespace Netick.Transports.Facepunch {
 
             var facepunchConnection = new FacepunchConnection {
                 Connection = _steamConnection.Connection,
-                SteamSendType = SteamSendType,
-                ForceFlush = ForceFlush
             };
 
             if (InternalConnections.TryAdd(_steamConnection.Connection, facepunchConnection)) {
