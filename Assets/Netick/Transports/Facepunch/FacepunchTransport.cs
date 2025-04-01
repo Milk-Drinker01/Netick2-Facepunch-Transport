@@ -37,6 +37,14 @@ namespace Netick.Transports.Facepunch {
         public static event Action OnNetickClientStarted;
         public static event Action OnNetickShutdownEvent;
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void OnLoad()
+        {
+            OnNetickServerStarted = delegate { };
+            OnNetickClientStarted = delegate { };
+            OnNetickShutdownEvent = delegate { };
+        }
+
         public static SteamId GetPlayerSteamID(NetworkPlayer player)
         {
             //return server player id
