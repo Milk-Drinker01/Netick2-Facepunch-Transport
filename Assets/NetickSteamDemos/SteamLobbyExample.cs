@@ -47,12 +47,12 @@ public class SteamLobbyExample : MonoBehaviour
         if (SteamClient.IsValid)
             InitLobbyCallbacks();
         else
-            SteamInitializer.OnInitializeCallbacks += InitLobbyCallbacks;
+            SteamInitializer.OnInitialize += InitLobbyCallbacks;
     }
 
     void OnDestroy()
     {
-        SteamInitializer.OnInitializeCallbacks -= InitLobbyCallbacks;
+        SteamInitializer.OnInitialize -= InitLobbyCallbacks;
         FacepunchTransport.OnNetickServerStarted -= OnNetickServerStarted;
         FacepunchTransport.OnNetickShutdownEvent -= OnNetickShutdown;
     }

@@ -7,12 +7,14 @@ namespace Netick.Transports.Facepunch.Extras
 {
     public class SteamInitializer : MonoBehaviour
     {
-        public static event Action OnInitializeCallbacks;
+        public static event Action OnInitialize;
+        public static event Action OnConnected;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void OnLoad()
         {
-            OnInitializeCallbacks = delegate { };
+            OnInitialize = delegate { };
+            OnConnected = delegate { };
         }
 
         [SerializeField]
@@ -31,13 +33,18 @@ namespace Netick.Transports.Facepunch.Extras
         IEnumerator EnsureValidity()
         {
             yield return new WaitUntil(() => SteamClient.IsValid);
-            OnInitializeCallbacks?.Invoke();
+            OnInitialize?.Invoke();
+            yield return new WaitUntil(() => SteamClient.IsLoggedOn);
+            OnConnected?.Invoke();
         }
 
         private void OnDestroy()
         {
             if (SteamClient.IsValid)
+            {
+                Debug.Log("Steam Initializer destroyed - shutting down steam!");
                 SteamClient.Shutdown();
+            }
         }
     }
 }
