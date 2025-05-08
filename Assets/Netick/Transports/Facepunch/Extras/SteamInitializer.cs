@@ -9,6 +9,12 @@ namespace Netick.Transports.Facepunch.Extras
     {
         public static event Action OnInitializeCallbacks;
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void OnLoad()
+        {
+            OnInitializeCallbacks = delegate { };
+        }
+
         [SerializeField]
         uint AppID = 480;
 
