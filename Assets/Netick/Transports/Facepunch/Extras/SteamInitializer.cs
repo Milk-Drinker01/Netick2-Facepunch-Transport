@@ -8,13 +8,11 @@ namespace Netick.Transports.Facepunch.Extras
     public class SteamInitializer : MonoBehaviour
     {
         public static event Action OnInitialize;
-        public static event Action OnConnected;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void OnLoad()
         {
             OnInitialize = delegate { };
-            OnConnected = delegate { };
         }
 
         [SerializeField]
@@ -34,8 +32,6 @@ namespace Netick.Transports.Facepunch.Extras
         {
             yield return new WaitUntil(() => SteamClient.IsValid);
             OnInitialize?.Invoke();
-            yield return new WaitUntil(() => SteamClient.IsLoggedOn);
-            OnConnected?.Invoke();
         }
 
         private void OnDestroy()
