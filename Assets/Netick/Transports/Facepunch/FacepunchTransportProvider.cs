@@ -14,6 +14,10 @@ namespace Netick.Transports.Facepunch {
         [SerializeField]
         bool FlushMessages;
 
+        [Tooltip("Use this to decide if clients destroy network objects on disconnect.")]
+        [SerializeField]
+        bool DestroyNetworkObjectsOnDisconnect;
+
         [SerializeField]
         LogLevel logLevel = LogLevel.Error;
 
@@ -23,6 +27,6 @@ namespace Netick.Transports.Facepunch {
             FacepunchTransport.ForceFlush = FlushMessages;
         }
 #endif
-        public override NetworkTransport MakeTransportInstance() => new FacepunchTransport(SteamDataSendType, FlushMessages, logLevel);
+        public override NetworkTransport MakeTransportInstance() => new FacepunchTransport(SteamDataSendType, FlushMessages, DestroyNetworkObjectsOnDisconnect, logLevel);
     }
 }

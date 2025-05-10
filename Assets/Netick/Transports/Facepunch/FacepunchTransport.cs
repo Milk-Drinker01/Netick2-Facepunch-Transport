@@ -12,6 +12,7 @@ namespace Netick.Transports.Facepunch {
 
         public static SendType SteamSendType = SendType.NoNagle;
         public static bool ForceFlush;
+        public static bool DestroyNetworkObjectsOnDisconnect;
 
         static readonly Dictionary<Steamworks.Data.Connection, FacepunchConnection> InternalConnections = new Dictionary<Steamworks.Data.Connection, FacepunchConnection>();
 
@@ -27,9 +28,10 @@ namespace Netick.Transports.Facepunch {
 
         public bool IsServer;
 
-        public FacepunchTransport(SendType sendType, bool forceFlush, LogLevel logLevel = LogLevel.Error) {
+        public FacepunchTransport(SendType sendType, bool forceFlush, bool _destroyNOsOnDisconnect, LogLevel logLevel = LogLevel.Error) {
             SteamSendType = sendType;
             ForceFlush = forceFlush;
+            DestroyNetworkObjectsOnDisconnect = _destroyNOsOnDisconnect;
             _logLevel = logLevel;
         }
         public static SteamId SteamID { get; private set; }
@@ -238,7 +240,7 @@ namespace Netick.Transports.Facepunch {
             if (_logLevel <= LogLevel.Developer)
                 Debug.Log($"[{nameof(FacepunchTransport)}] - You have been removed from the server (either you were kicked, or the server shut down).");
 
-            Network.Shutdown(true);
+            Network.Shutdown(DestroyNetworkObjectsOnDisconnect);
         }
 
         unsafe void IConnectionManager.OnMessage(IntPtr data, int size, long messageNum, long recvTime, int channel) {
