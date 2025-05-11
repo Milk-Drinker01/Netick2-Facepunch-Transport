@@ -35,6 +35,7 @@ namespace Netick.Transports.Facepunch {
         public static SteamId SteamID { get; private set; }
         public static event Action OnNetickServerStarted;
         public static event Action OnNetickClientStarted;
+        public static event Action OnNetickClientDisconnect;
         public static event Action OnNetickShutdownEvent;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -42,6 +43,7 @@ namespace Netick.Transports.Facepunch {
         {
             OnNetickServerStarted = delegate { };
             OnNetickClientStarted = delegate { };
+            OnNetickClientDisconnect = delegate { };
             OnNetickShutdownEvent = delegate { };
         }
 
@@ -237,6 +239,8 @@ namespace Netick.Transports.Facepunch {
 
             if (_logLevel <= LogLevel.Developer)
                 Debug.Log($"[{nameof(FacepunchTransport)}] - You have been removed from the server (either you were kicked, or the server shut down).");
+
+            OnNetickClientDisconnect.Invoke();
         }
 
         unsafe void IConnectionManager.OnMessage(IntPtr data, int size, long messageNum, long recvTime, int channel) {

@@ -54,12 +54,14 @@ public class SteamLobbyExample : MonoBehaviour
     {
         SteamInitializer.OnInitialize -= InitLobbyCallbacks;
         FacepunchTransport.OnNetickServerStarted -= OnNetickServerStarted;
+        FacepunchTransport.OnNetickClientDisconnect -= DisconnectedFromServer;
         FacepunchTransport.OnNetickShutdownEvent -= OnNetickShutdown;
     }
 
     private void InitLobbyCallbacks()
     {
         FacepunchTransport.OnNetickServerStarted += OnNetickServerStarted;
+        FacepunchTransport.OnNetickClientDisconnect += DisconnectedFromServer;
         FacepunchTransport.OnNetickShutdownEvent += OnNetickShutdown;
 
         SteamFriends.OnGameLobbyJoinRequested += async (lobby, steamId) => {
@@ -277,6 +279,11 @@ public class SteamLobbyExample : MonoBehaviour
     #endregion
 
     public void DisconnectFromServer()
+    {
+        DisconnectedFromServer();
+    }
+
+    public void DisconnectedFromServer()
     {
         Debug.Log("Shutting Down Netick....");
         Netick.Unity.Network.Shutdown(true);
