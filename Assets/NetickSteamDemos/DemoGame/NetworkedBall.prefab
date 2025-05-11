@@ -167,7 +167,6 @@ MonoBehaviour:
   _SpatialPrioritization: 0
   AddToNetworkLoop: 1
   _isPersistent: 0
-  GlobalObjectIdHash: 0
   PrefabRoot: {fileID: 0}
   Children: []
   PrefabIndex: -1
