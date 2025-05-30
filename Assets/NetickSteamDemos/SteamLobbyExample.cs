@@ -132,9 +132,10 @@ public class SteamLobbyExample : MonoBehaviour
     #region Lobby Stuff
 
     LobbyType _lobbyType;
-    List<Lobby> Matches = new List<Lobby>();
     public async void SearchPublicLobbies()
     {
+        OnLobbySearchStart?.Invoke();
+
         _lobbyType = LobbyType.Public;
 
         Lobby[] lobbies;
@@ -151,9 +152,6 @@ public class SteamLobbyExample : MonoBehaviour
 
         lobbies = await query.RequestAsync();
 
-        Matches.Clear();
-        OnLobbySearchStart?.Invoke();
-
         if (lobbies == null)
         {
             Debug.Log("No lobbies found");
@@ -161,13 +159,15 @@ public class SteamLobbyExample : MonoBehaviour
             return;
         }
 
+        List<Lobby> ValidMatches = new List<Lobby>();
+
         foreach (var lobby in lobbies)
         {
-            if (!Matches.Contains(lobby) && lobby.MemberCount != 0)
-                Matches.Add(lobby);
+            if (!ValidMatches.Contains(lobby) && lobby.MemberCount != 0)
+                ValidMatches.Add(lobby);
         }
 
-        OnLobbySearchFinished?.Invoke(Matches);
+        OnLobbySearchFinished?.Invoke(ValidMatches);
     }
 
     public void CreateLobby(LobbyType lobbyType = LobbyType.Public)
