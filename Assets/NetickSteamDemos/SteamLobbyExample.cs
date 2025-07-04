@@ -36,6 +36,7 @@ public class SteamLobbyExample : MonoBehaviour
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void OnLoad()
     {
+        CurrentLobby = default;
         OnLobbyEnteredEvent = delegate { };
         OnLobbyLeftEvent = delegate { };
         OnLobbySearchStart = delegate { };
@@ -93,8 +94,10 @@ public class SteamLobbyExample : MonoBehaviour
         };
 
         SteamMatchmaking.OnLobbyEntered += (lobby) => {
+            if (lobby.Id != CurrentLobby.Id)
+                LeaveLobby();
+
             Debug.Log($"You joined {lobby.GetData("LobbyName")}");
-            LeaveLobby();
             CurrentLobby = lobby;
             OnLobbyEnteredEvent?.Invoke(lobby);
 
