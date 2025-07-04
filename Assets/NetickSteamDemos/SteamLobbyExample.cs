@@ -7,9 +7,25 @@ using Netick.Transports.Facepunch.Extras;
 using Netick.Transports.Facepunch;
 using Steamworks;
 using Steamworks.Data;
+using System.Linq;
 
 public class SteamLobbyExample : MonoBehaviour
 {
+    public enum DistanceFilter
+    {
+        Close,
+        Default,
+        Far,
+        WorldWide
+    }
+
+    public enum LobbyType
+    {
+        Public,
+        FriendsOnly,
+        Private
+    }
+
     public static event Action<Lobby> OnLobbyEnteredEvent;
     public static event Action OnLobbyLeftEvent;
     public static event Action OnLobbySearchStart;
@@ -42,6 +58,8 @@ public class SteamLobbyExample : MonoBehaviour
     [SerializeField] NetworkTransportProvider Transport;
     [SerializeField] GameObject SandboxPrefab;
     [SerializeField] int Port = 4050;
+
+    public static SteamId SteamID => SteamClient.SteamId;
 
     private void Start() {
         if (SteamClient.IsValid)
@@ -76,6 +94,7 @@ public class SteamLobbyExample : MonoBehaviour
 
         SteamMatchmaking.OnLobbyEntered += (lobby) => {
             Debug.Log($"You joined {lobby.GetData("LobbyName")}");
+            LeaveLobby();
             CurrentLobby = lobby;
             OnLobbyEnteredEvent?.Invoke(lobby);
 
@@ -132,9 +151,13 @@ public class SteamLobbyExample : MonoBehaviour
     #region Lobby Stuff
 
     LobbyType _lobbyType;
+    public LobbyType CurrentLobbyType => _lobbyType;
     public async void SearchPublicLobbies()
     {
         OnLobbySearchStart?.Invoke();
+
+        if (!SteamClient.IsValid)
+            return;
 
         _lobbyType = LobbyType.Public;
 
@@ -195,21 +218,34 @@ public class SteamLobbyExample : MonoBehaviour
 
         Debug.Log($"lobby {lobby.Id} was created");
 
-        switch (_lobbyType)
-        {
-            case LobbyType.Public:
-                lobby.SetPublic();
-                break;
-            case LobbyType.FriendsOnly:
-                lobby.SetFriendsOnly();
-                break;
-            case LobbyType.Private:
-                lobby.SetPrivate();
-                break;
-        }
+        SetLobbyType();
 
         if (AutoStartServerWithLobby)
             StartGameServer();
+    }
+
+    public void ChangeLobbyType(LobbyType _newType)
+    {
+        _lobbyType = _newType;
+        SetLobbyType();
+    }
+
+    void SetLobbyType()
+    {
+        switch (_lobbyType)
+        {
+            case LobbyType.Public:
+                CurrentLobby.SetPublic();
+                break;
+            case LobbyType.FriendsOnly:
+                CurrentLobby.SetFriendsOnly();
+                break;
+            case LobbyType.Private:
+                CurrentLobby.SetPrivate();
+                break;
+            default:
+                break;
+        }
     }
 
     public static async Task JoinLobby(ulong id)
@@ -219,25 +255,22 @@ public class SteamLobbyExample : MonoBehaviour
 
     public void LeaveLobby()
     {
+        Friend me = new Friend(SteamID);
+        if (!CurrentLobby.Members.Contains(me))
+        {
+            //Debug.Log("trying to leave a lobby ur not a part of!");
+            return;
+        }
         Debug.Log("leaving lobby");
+        if (CurrentLobby.IsOwnedBy(SteamID))
+        {
+            CurrentLobby.SetJoinable(false);
+            CurrentLobby.SetPrivate();
+        }
         CurrentLobby.Leave();
-        DisconnectFromServer();
+        DisconnectedFromServer();
         OnLobbyLeftEvent?.Invoke();
-    }
-
-    public enum DistanceFilter
-    {
-        Close,
-        Default,
-        Far,
-        WorldWide
-    }
-
-    public enum LobbyType
-    {
-        Public,
-        FriendsOnly,
-        Private
+        CurrentLobby = default;
     }
     #endregion
 
@@ -285,8 +318,11 @@ public class SteamLobbyExample : MonoBehaviour
 
     public void DisconnectedFromServer()
     {
-        Debug.Log("Shutting Down Netick....");
-        Netick.Unity.Network.Shutdown(true);
+        if (Netick.Unity.Network.IsRunning)
+        {
+            Debug.Log("Shutting Down Netick....");
+            Netick.Unity.Network.Shutdown();
+        }
     }
 
     public void OnNetickServerStarted()
@@ -302,5 +338,21 @@ public class SteamLobbyExample : MonoBehaviour
         OnGameServerShutdown?.Invoke();
         if (CurrentLobby.IsOwnedBy(SteamClient.SteamId))
             CurrentLobby.SetGameServer("127.0.0.1", 0);
+    }
+
+    public static void OpenInviteFriendsMenu()
+    {
+        if (!SteamClient.IsValid)
+            return;
+
+        SteamFriends.OpenGameInviteOverlay(CurrentLobby.Id);
+    }
+
+    public static string GetUserName()
+    {
+        if (!SteamClient.IsValid)
+            return "";
+
+        return SteamClient.Name;
     }
 }
