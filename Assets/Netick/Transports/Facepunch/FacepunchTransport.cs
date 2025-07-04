@@ -37,6 +37,7 @@ namespace Netick.Transports.Facepunch {
         public static event Action OnNetickClientStarted;
         public static event Action OnNetickClientDisconnect;
         public static event Action OnNetickShutdownEvent;
+        private static bool TransportInitialized;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void OnLoad()
@@ -45,6 +46,7 @@ namespace Netick.Transports.Facepunch {
             OnNetickClientStarted = delegate { };
             OnNetickClientDisconnect = delegate { };
             OnNetickShutdownEvent = delegate { };
+            TransportInitialized = false;
         }
 
         public static SteamId GetPlayerSteamID(NetworkPlayer player)
@@ -70,7 +72,7 @@ namespace Netick.Transports.Facepunch {
                 return;
             }
 
-            InitSteamworks();
+            InitSteamworks(_logLevel);
 
             _buffer = new BitBuffer(createChunks: false);
 
@@ -78,8 +80,12 @@ namespace Netick.Transports.Facepunch {
                 _freeConnections.Enqueue(new FacepunchConnection());
         }
 
-        async void InitSteamworks()
+        public static async void InitSteamworks(LogLevel logLevel = LogLevel.Developer)
         {
+            if (TransportInitialized)
+                return;
+            TransportInitialized = true;
+
             while (!SteamClient.IsValid)
             {
                 await Task.Yield();
@@ -87,12 +93,12 @@ namespace Netick.Transports.Facepunch {
 
             SteamNetworkingUtils.InitRelayNetworkAccess();
 
-            if (_logLevel <= LogLevel.Developer)
+            if (logLevel <= LogLevel.Developer)
                 Debug.Log($"[{nameof(FacepunchTransport)}] - Initialized access to Steam Relay Network.");
 
             SteamID = SteamClient.SteamId;
 
-            if (_logLevel <= LogLevel.Developer)
+            if (logLevel <= LogLevel.Developer)
                 Debug.Log($"[{nameof(FacepunchTransport)}] - Fetched user Steam ID.");
         }
 
