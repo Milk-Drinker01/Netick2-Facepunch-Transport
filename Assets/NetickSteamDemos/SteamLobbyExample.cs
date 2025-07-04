@@ -94,8 +94,8 @@ public class SteamLobbyExample : MonoBehaviour
         };
 
         SteamMatchmaking.OnLobbyEntered += (lobby) => {
-            if (lobby.Id != CurrentLobby.Id)
-                LeaveLobby();
+            //if (lobby.Id != CurrentLobby.Id)
+            //    LeaveLobby();
 
             Debug.Log($"You joined {lobby.GetData("LobbyName")}");
             CurrentLobby = lobby;
