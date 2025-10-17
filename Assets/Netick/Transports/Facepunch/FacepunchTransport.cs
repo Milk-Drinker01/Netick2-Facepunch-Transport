@@ -33,19 +33,19 @@ namespace Netick.Transports.Facepunch {
             _logLevel = logLevel;
         }
         public static SteamId SteamID { get; private set; }
-        public static event Action OnNetickServerStarted;
-        public static event Action OnNetickClientStarted;
-        public static event Action OnNetickClientDisconnect;
-        public static event Action OnNetickShutdownEvent;
+        public static event Action OnSteamSocketServerStarted;
+        public static event Action OnSteamSocketClientStarted;
+        public static event Action OnSteamSocketClientDisconnect;
+        public static event Action OnSteamSocketShutdown;
         private static bool TransportInitialized;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void OnLoad()
         {
-            OnNetickServerStarted = delegate { };
-            OnNetickClientStarted = delegate { };
-            OnNetickClientDisconnect = delegate { };
-            OnNetickShutdownEvent = delegate { };
+            OnSteamSocketServerStarted = delegate { };
+            OnSteamSocketClientStarted = delegate { };
+            OnSteamSocketClientDisconnect = delegate { };
+            OnSteamSocketShutdown = delegate { };
             TransportInitialized = false;
         }
 
@@ -112,7 +112,7 @@ namespace Netick.Transports.Facepunch {
                         _steamworksServer.Interface = this;
 
                         IsServer = true;
-                        OnNetickServerStarted?.Invoke();
+                        OnSteamSocketServerStarted?.Invoke();
                         break;
                     }
                 case RunMode.Client: {
@@ -120,7 +120,7 @@ namespace Netick.Transports.Facepunch {
                             Debug.Log($"[{nameof(FacepunchTransport)}] - Starting as client");
 
                         IsServer = false;
-                        OnNetickClientStarted?.Invoke();
+                        OnSteamSocketClientStarted?.Invoke();
                         break;
                     }
             }
@@ -138,7 +138,7 @@ namespace Netick.Transports.Facepunch {
                     Debug.Log($"[{nameof(FacepunchTransport)}] - Shutting down error: {e}");
             }
 
-            OnNetickShutdownEvent?.Invoke();
+            OnSteamSocketShutdown?.Invoke();
         }
 
         public override void PollEvents() {
@@ -246,7 +246,7 @@ namespace Netick.Transports.Facepunch {
             if (_logLevel <= LogLevel.Developer)
                 Debug.Log($"[{nameof(FacepunchTransport)}] - You have been removed from the server (either you were kicked, or the server shut down).");
 
-            OnNetickClientDisconnect.Invoke();
+            OnSteamSocketClientDisconnect.Invoke();
         }
 
         unsafe void IConnectionManager.OnMessage(IntPtr data, int size, long messageNum, long recvTime, int channel) {

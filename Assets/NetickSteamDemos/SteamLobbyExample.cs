@@ -72,16 +72,16 @@ public class SteamLobbyExample : MonoBehaviour
     void OnDestroy()
     {
         SteamInitializer.OnInitialize -= InitLobbyCallbacks;
-        FacepunchTransport.OnNetickServerStarted -= OnNetickServerStarted;
-        FacepunchTransport.OnNetickClientDisconnect -= DisconnectedFromServer;
-        FacepunchTransport.OnNetickShutdownEvent -= OnNetickShutdown;
+        FacepunchTransport.OnSteamSocketServerStarted -= OnNetickServerStarted;
+        FacepunchTransport.OnSteamSocketClientDisconnect -= DisconnectedFromServer;
+        FacepunchTransport.OnSteamSocketShutdown -= OnNetickShutdown;
     }
 
     private void InitLobbyCallbacks()
     {
-        FacepunchTransport.OnNetickServerStarted += OnNetickServerStarted;
-        FacepunchTransport.OnNetickClientDisconnect += DisconnectedFromServer;
-        FacepunchTransport.OnNetickShutdownEvent += OnNetickShutdown;
+        FacepunchTransport.OnSteamSocketServerStarted += OnNetickServerStarted;
+        FacepunchTransport.OnSteamSocketClientDisconnect += DisconnectedFromServer;
+        FacepunchTransport.OnSteamSocketShutdown += OnNetickShutdown;
 
         SteamFriends.OnGameLobbyJoinRequested += async (lobby, steamId) => {
             await SteamMatchmaking.JoinLobbyAsync(lobby.Id);
