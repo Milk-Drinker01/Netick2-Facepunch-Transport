@@ -6,10 +6,11 @@ using Steamworks.Data;
 using UnityEngine;
 using Network = Netick.Unity.Network;
 
-namespace Netick.Transports.Facepunch {
+namespace Netick.Transports.Facepunch
+{
 
-    public class FacepunchTransport : NetworkTransport, ISocketManager, IConnectionManager {
-
+    public class FacepunchTransport : NetworkTransport, ISocketManager, IConnectionManager
+    {
         public static SendType SteamSendType = SendType.NoNagle;
         public static SendType SteamSendTypeReliable = SendType.Reliable | SendType.NoNagle;
         public static bool ForceFlush;
@@ -66,11 +67,13 @@ namespace Netick.Transports.Facepunch {
         }
 
         private Queue<FacepunchConnection> _freeConnections = new Queue<FacepunchConnection>();
-        public override void Init() {
+        public override void Init()
+        {
             if (_logLevel <= LogLevel.Developer)
                 Debug.Log($"[{nameof(FacepunchTransport)}] - Initializing Transport");
 
-            if (!SteamClient.IsValid) {
+            if (!SteamClient.IsValid)
+            {
                 if (_logLevel <= LogLevel.Error)
                     Debug.Log($"[{nameof(FacepunchTransport)}] - SteamClient wasn't initialized. " +
                               "Read more on how to set up transport: https://github.com/Milk-Drinker01/Netick2-Facepunch-Transport");
@@ -109,26 +112,29 @@ namespace Netick.Transports.Facepunch {
 
         public override void Run(RunMode mode, int port)
         {
-            switch (mode) {
-                case RunMode.Server: {
-                        if (_logLevel <= LogLevel.Developer)
-                            Debug.Log($"[{nameof(FacepunchTransport)}] - Starting as server");
+            switch (mode)
+            {
+                case RunMode.Server:
+                {
+                    if (_logLevel <= LogLevel.Developer)
+                        Debug.Log($"[{nameof(FacepunchTransport)}] - Starting as server");
 
-                        _steamworksServer = SteamNetworkingSockets.CreateRelaySocket<SocketManager>(port);
-                        _steamworksServer.Interface = this;
+                    _steamworksServer = SteamNetworkingSockets.CreateRelaySocket<SocketManager>(port);
+                    _steamworksServer.Interface = this;
 
-                        IsServer = true;
-                        OnSteamSocketServerStarted?.Invoke();
-                        break;
-                    }
-                case RunMode.Client: {
-                        if (_logLevel <= LogLevel.Developer)
+                    IsServer = true;
+                    OnSteamSocketServerStarted?.Invoke();
+                    break;
+                }
+                case RunMode.Client:
+                {
+                    if (_logLevel <= LogLevel.Developer)
                             Debug.Log($"[{nameof(FacepunchTransport)}] - Starting as client");
 
-                        IsServer = false;
-                        OnSteamSocketClientStarted?.Invoke();
-                        break;
-                    }
+                    IsServer = false;
+                    OnSteamSocketClientStarted?.Invoke();
+                    break;
+                }
             }
         }
 
@@ -169,7 +175,7 @@ namespace Netick.Transports.Facepunch {
                 Debug.Log($"[{nameof(FacepunchTransport)}] - Player disconnected from server.");
         }
 
-        #region SERVER
+        #region FACEPUNCH SERVER
 
         void ISocketManager.OnConnecting(Steamworks.Data.Connection connection, ConnectionInfo info)
         {
@@ -236,7 +242,7 @@ namespace Netick.Transports.Facepunch {
 
         #endregion
 
-        #region CLIENT
+        #region FACEPUNCH CLIENT
 
         public override void Connect(string address, int port, byte[] connectionData, int connectionDataLen)
         {
