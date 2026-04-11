@@ -32,11 +32,13 @@ public class SteamLobbyExample : MonoBehaviour
     public static event Action<List<Lobby>> OnLobbySearchFinished;
     public static event Action OnGameServerShutdown;
     public static Lobby CurrentLobby;
+    static SteamId _lobbyOwner;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void OnLoad()
     {
         CurrentLobby = default;
+        _lobbyOwner = default;
         OnLobbyEnteredEvent = delegate { };
         OnLobbyLeftEvent = delegate { };
         OnLobbySearchStart = delegate { };
@@ -45,6 +47,7 @@ public class SteamLobbyExample : MonoBehaviour
     }
 
     [SerializeField] bool AutoStartServerWithLobby = true;
+    [SerializeField] bool LeaveLobbyWhenHostLeaves = true;
 
     [Header("Lobby Host Settings")]
     [SerializeField] int NumberOfSlots = 16;
@@ -99,6 +102,7 @@ public class SteamLobbyExample : MonoBehaviour
 
             Debug.Log($"You joined {lobby.GetData("LobbyName")}");
             CurrentLobby = lobby;
+            _lobbyOwner = lobby.Owner.Id;
             OnLobbyEnteredEvent?.Invoke(lobby);
 
             if (AutoStartServerWithLobby && !lobby.IsOwnedBy(SteamClient.SteamId))
@@ -107,6 +111,9 @@ public class SteamLobbyExample : MonoBehaviour
 
         SteamMatchmaking.OnLobbyMemberLeave += (lobby, friend) => {
             Debug.Log(friend.Name + " Left the lobby");
+
+            if (LeaveLobbyWhenHostLeaves && friend.Id == _lobbyOwner)
+                LeaveLobby();
         };
 
         SteamMatchmaking.OnChatMessage += (lobby, friend, message) => {
