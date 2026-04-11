@@ -19,7 +19,8 @@ namespace Netick.Transports.Facepunch {
         private static readonly IEndPoint _endPoint = new IPEndPoint(IPAddress.Any, 4050).ToNetickEndPoint();
         public override IEndPoint EndPoint => _endPoint;
 
-        public override void Send(IntPtr data, int length) {
+        public override void Send(IntPtr data, int length)
+        {
             Connection.SendMessage(data, length, FacepunchTransport.SteamSendType);
             if (FacepunchTransport.ForceFlush)
                 Connection.Flush();
@@ -30,7 +31,7 @@ namespace Netick.Transports.Facepunch {
             switch(transportDeliveryMethod)
             {
                 case TransportDeliveryMethod.Unreliable: Connection.SendMessage(ptr, length, FacepunchTransport.SteamSendType); break;
-                case TransportDeliveryMethod.Reliable: Connection.SendMessage(ptr, length, SendType.Reliable); break;
+                case TransportDeliveryMethod.Reliable: Connection.SendMessage(ptr, length, FacepunchTransport.SteamSendTypeReliable); break;
             }
         }
     }

@@ -11,6 +11,7 @@ namespace Netick.Transports.Facepunch {
     public class FacepunchTransport : NetworkTransport, ISocketManager, IConnectionManager {
 
         public static SendType SteamSendType = SendType.NoNagle;
+        public static SendType SteamSendTypeReliable = SendType.Reliable | SendType.NoNagle;
         public static bool ForceFlush;
 
         static readonly Dictionary<Steamworks.Data.Connection, FacepunchConnection> InternalConnections = new Dictionary<Steamworks.Data.Connection, FacepunchConnection>();
