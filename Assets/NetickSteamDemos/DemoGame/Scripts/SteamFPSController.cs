@@ -11,6 +11,7 @@ namespace Netick.Examples.Steam
         public bool SprintInput;
         public bool ShootInput;
     }
+    
     public class SteamFPSController : NetworkBehaviour
     {
         [SerializeField] private float  _movementSpeed = 2.5f;
