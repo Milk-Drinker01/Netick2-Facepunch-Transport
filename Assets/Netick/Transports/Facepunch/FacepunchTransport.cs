@@ -27,11 +27,13 @@ namespace Netick.Transports.Facepunch {
 
         public bool IsServer;
 
-        public FacepunchTransport(SendType sendType, bool forceFlush, LogLevel logLevel = LogLevel.Error) {
+        public FacepunchTransport(SendType sendType, bool forceFlush, LogLevel logLevel = LogLevel.Error)
+        {
             SteamSendType = sendType;
             ForceFlush = forceFlush;
             _logLevel = logLevel;
         }
+        
         public static SteamId SteamID { get; private set; }
         public static event Action OnSteamSocketServerStarted;
         public static event Action OnSteamSocketClientStarted;
@@ -47,6 +49,8 @@ namespace Netick.Transports.Facepunch {
             OnSteamSocketClientDisconnect = delegate { };
             OnSteamSocketShutdown = delegate { };
             TransportInitialized = false;
+            InternalConnections.Clear();
+            clientToServerConnection = null;
         }
 
         public static SteamId GetPlayerSteamID(NetworkPlayer player)
@@ -102,7 +106,8 @@ namespace Netick.Transports.Facepunch {
                 Debug.Log($"[{nameof(FacepunchTransport)}] - Fetched user Steam ID.");
         }
 
-        public override void Run(RunMode mode, int port) {
+        public override void Run(RunMode mode, int port)
+        {
             switch (mode) {
                 case RunMode.Server: {
                         if (_logLevel <= LogLevel.Developer)
@@ -126,12 +131,15 @@ namespace Netick.Transports.Facepunch {
             }
         }
 
-        public override void Shutdown() {
+        public override void Shutdown()
+        {
             try {
                 _steamConnection?.Close();
                 _steamworksServer?.Close();
                 _steamworksServer = null;
                 _steamConnection = null;
+                InternalConnections.Clear();
+                clientToServerConnection = null;
             }
             catch (Exception e) {
                 if (_logLevel <= LogLevel.Error)
@@ -141,7 +149,8 @@ namespace Netick.Transports.Facepunch {
             OnSteamSocketShutdown?.Invoke();
         }
 
-        public override void PollEvents() {
+        public override void PollEvents()
+        {
             _steamworksServer?.Receive();
             _steamConnection?.Receive();
         }
@@ -152,14 +161,17 @@ namespace Netick.Transports.Facepunch {
             facepunchConnection.Connection.Flush();
             facepunchConnection.Connection.Close();
             InternalConnections.Remove(facepunchConnection.Connection);
+            facepunchConnection.Reset();
+            _freeConnections.Enqueue(facepunchConnection);
 
             if (_logLevel <= LogLevel.Developer)
-                Debug.Log($"[{nameof(FacepunchTransport)}] - Player {(facepunchConnection).PlayerSteamID} Disconnected from server.");
+                Debug.Log($"[{nameof(FacepunchTransport)}] - Player disconnected from server.");
         }
 
         #region SERVER
 
-        void ISocketManager.OnConnecting(Steamworks.Data.Connection connection, ConnectionInfo info) {
+        void ISocketManager.OnConnecting(Steamworks.Data.Connection connection, ConnectionInfo info)
+        {
             if (Engine.ConnectedPlayers.Count == Engine.MaxClients)
             {
                 if (_logLevel <= LogLevel.Developer)
@@ -174,7 +186,14 @@ namespace Netick.Transports.Facepunch {
             }
         }
 
-        void ISocketManager.OnConnected(Steamworks.Data.Connection connection, ConnectionInfo info) {
+        void ISocketManager.OnConnected(Steamworks.Data.Connection connection, ConnectionInfo info)
+        {
+            if (_freeConnections.Count == 0)
+            {
+                connection.Close();
+                return;
+            }
+
             var facepunchConnection = _freeConnections.Dequeue();
             facepunchConnection.Connection = connection;
             facepunchConnection.PlayerSteamID = info.Identity.SteamId;
@@ -189,33 +208,44 @@ namespace Netick.Transports.Facepunch {
 
         }
 
-        void ISocketManager.OnDisconnected(Steamworks.Data.Connection connection, ConnectionInfo info) {
-            _freeConnections.Enqueue(InternalConnections[connection]);
-            NetworkPeer.OnDisconnected(InternalConnections[connection], TransportDisconnectReason.Timeout);
+        void ISocketManager.OnDisconnected(Steamworks.Data.Connection connection, ConnectionInfo info)
+        {
+            if (!InternalConnections.TryGetValue(connection, out var facepunchConnection))
+                return;
+
+            NetworkPeer.OnDisconnected(facepunchConnection, TransportDisconnectReason.Timeout);
             InternalConnections.Remove(connection);
+            facepunchConnection.Reset();
+            _freeConnections.Enqueue(facepunchConnection);
 
             if (_logLevel <= LogLevel.Developer)
                 Debug.Log($"[{nameof(FacepunchTransport)}] - Disconnected Steam user {info.Identity.SteamId}");
         }
 
-        unsafe void ISocketManager.OnMessage(Steamworks.Data.Connection connection, NetIdentity identity, IntPtr data, int size, long messageNum, long recvTime, int channel) {
+        unsafe void ISocketManager.OnMessage(Steamworks.Data.Connection connection, NetIdentity identity, IntPtr data, int size, long messageNum, long recvTime, int channel)
+        {
+            if (!InternalConnections.TryGetValue(connection, out var facepunchConnection))
+                return;
+
             var ptr = (byte*)data;
             _buffer.SetFrom(ptr, size, size);
-            NetworkPeer.Receive(InternalConnections[connection], _buffer);
+            NetworkPeer.Receive(facepunchConnection, _buffer);
         }
 
         #endregion
 
         #region CLIENT
 
-        public override void Connect(string address, int port, byte[] connectionData, int connectionDataLen) {
+        public override void Connect(string address, int port, byte[] connectionData, int connectionDataLen)
+        {
             if (!ulong.TryParse(address, out var ID))
                 return;
             _steamConnection = SteamNetworkingSockets.ConnectRelay<ConnectionManager>(ID, port);
             _steamConnection.Interface = this;
         }
 
-        void IConnectionManager.OnConnecting(ConnectionInfo info) {
+        void IConnectionManager.OnConnecting(ConnectionInfo info)
+        {
             if (_logLevel <= LogLevel.Developer)
                 Debug.Log($"[{nameof(FacepunchTransport)}] - Connecting with Steam user {info.Identity.SteamId}.");
         }
@@ -226,7 +256,8 @@ namespace Netick.Transports.Facepunch {
                 Connection = _steamConnection.Connection,
             };
 
-            if (InternalConnections.TryAdd(_steamConnection.Connection, facepunchConnection)) {
+            if (InternalConnections.TryAdd(_steamConnection.Connection, facepunchConnection))
+            {
                 if (_logLevel <= LogLevel.Developer)
                     Debug.Log($"[{nameof(FacepunchTransport)}] - Connected with Steam user {info.Identity.SteamId}.");
 
@@ -238,8 +269,10 @@ namespace Netick.Transports.Facepunch {
                 Debug.LogWarning($"[{nameof(FacepunchTransport)}] - Failed to connect with Steam user {info.Identity.SteamId}, client already connected.");
         }
 
-        void IConnectionManager.OnDisconnected(ConnectionInfo info) {
-            NetworkPeer.OnDisconnected(InternalConnections[_steamConnection.Connection], TransportDisconnectReason.Timeout);
+        void IConnectionManager.OnDisconnected(ConnectionInfo info)
+        {
+            if (clientToServerConnection != null)
+                NetworkPeer.OnDisconnected(clientToServerConnection, TransportDisconnectReason.Timeout);
             InternalConnections.Clear();
             clientToServerConnection = null;
 
@@ -249,7 +282,8 @@ namespace Netick.Transports.Facepunch {
             OnSteamSocketClientDisconnect.Invoke();
         }
 
-        unsafe void IConnectionManager.OnMessage(IntPtr data, int size, long messageNum, long recvTime, int channel) {
+        unsafe void IConnectionManager.OnMessage(IntPtr data, int size, long messageNum, long recvTime, int channel)
+        {
             if (clientToServerConnection == null) return;
 
             var ptr = (byte*)data;
