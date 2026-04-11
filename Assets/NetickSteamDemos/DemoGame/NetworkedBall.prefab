@@ -164,14 +164,15 @@ MonoBehaviour:
   _BroadPhaseFilter: 0
   _NarrowPhaseFilter: 0
   _PredictionMode: 1
-  _SpatialPrioritization: 0
-  AddToNetworkLoop: 1
-  _isPersistent: 0
+  _AddToNetworkLoop: 1
+  _IsPersistent: 0
+  _ResetInterpOnInterest: 0
   PrefabRoot: {fileID: 0}
   Children: []
   PrefabIndex: -1
   _PrefabId: 1
-  SceneId: -1
+  _SceneId: -1
+  _RuntimeSceneId: -1
 --- !u!114 &1022673633266396152
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -191,8 +192,6 @@ MonoBehaviour:
   TransformSpace: 0
   UseForAOIPosition: 1
   EnablePredictionErrorCorrectionSmoothing: 0
-  InterpolationMultiplier: 20
   CorrectionMultiplier: 3
-  CorrectionMaxBlendAlpha: 0.7
   TeleportErrorThreshold: 50
   _interpolationSource: 0

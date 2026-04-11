@@ -299,14 +299,15 @@ MonoBehaviour:
   _BroadPhaseFilter: 0
   _NarrowPhaseFilter: 0
   _PredictionMode: 0
-  _SpatialPrioritization: 0
-  AddToNetworkLoop: 1
-  _isPersistent: 0
+  _AddToNetworkLoop: 1
+  _IsPersistent: 0
+  _ResetInterpOnInterest: 0
   PrefabRoot: {fileID: 0}
   Children: []
   PrefabIndex: -1
   _PrefabId: 2
-  SceneId: -1
+  _SceneId: -1
+  _RuntimeSceneId: -1
 --- !u!114 &55311550236507960
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -326,9 +327,7 @@ MonoBehaviour:
   TransformSpace: 0
   UseForAOIPosition: 1
   EnablePredictionErrorCorrectionSmoothing: 0
-  InterpolationMultiplier: 20
   CorrectionMultiplier: 3
-  CorrectionMaxBlendAlpha: 0.7
   TeleportErrorThreshold: 50
   _interpolationSource: 0
 --- !u!114 &6851739389618402669
@@ -353,7 +352,6 @@ MonoBehaviour:
   _ballPrefab: {fileID: 5294910979724857127, guid: 8737edaa406f70f45be2791a7efe89e5, type: 3}
   <SteamID>k__BackingField: 0
   <YawPitch>k__BackingField: {x: 0, y: 0}
-  <Velocity>k__BackingField: {x: 0, y: 0, z: 0}
 --- !u!143 &1417749684482701243
 CharacterController:
   m_ObjectHideFlags: 0
