@@ -199,10 +199,11 @@ namespace Netick.Transports.Facepunch {
             facepunchConnection.Connection = connection;
             facepunchConnection.PlayerSteamID = info.Identity.SteamId;
 
-            if (InternalConnections.TryAdd(connection, facepunchConnection)) {
+            if (InternalConnections.TryAdd(connection, facepunchConnection))
+            {
                 if (_logLevel <= LogLevel.Developer)
                     Debug.Log($"[{nameof(FacepunchTransport)}] - Connected with Steam user {info.Identity.SteamId}.");
-                NetworkPeer.OnConnected(InternalConnections[connection]);
+                NetworkPeer.OnConnected(facepunchConnection);
             }
             else if (_logLevel <= LogLevel.Normal)
                 Debug.LogWarning($"[{nameof(FacepunchTransport)}] - Failed to connect client with ID {connection.Id}, client already connected.");
@@ -263,7 +264,7 @@ namespace Netick.Transports.Facepunch {
                     Debug.Log($"[{nameof(FacepunchTransport)}] - Connected with Steam user {info.Identity.SteamId}.");
 
                 clientToServerConnection = facepunchConnection;
-                NetworkPeer.OnConnected(InternalConnections[_steamConnection.Connection]);
+                NetworkPeer.OnConnected(facepunchConnection);
 
             }
             else if (_logLevel <= LogLevel.Normal)
