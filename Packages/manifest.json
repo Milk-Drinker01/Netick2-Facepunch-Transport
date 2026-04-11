@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "com.karrar.netick": "https://github.com/NetickNetworking/NetickForUnity.git#df555dd4100fabc5aa85efcbdb6f6d95016e5613",
+    "com.karrar.netick": "https://github.com/NetickNetworking/NetickForUnity.git",
     "com.unity.collab-proxy": "2.5.2",
     "com.unity.feature.development": "1.0.1",
     "com.unity.ide.rider": "3.0.31",
