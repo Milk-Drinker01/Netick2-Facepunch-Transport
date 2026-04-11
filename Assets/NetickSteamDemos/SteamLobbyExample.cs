@@ -324,7 +324,7 @@ public class SteamLobbyExample : MonoBehaviour
         if (Netick.Unity.Network.IsRunning)
         {
             Debug.Log("Shutting Down Netick....");
-            Netick.Unity.Network.Shutdown();
+            Netick.Unity.Network.Shutdown(true);
         }
     }
 
