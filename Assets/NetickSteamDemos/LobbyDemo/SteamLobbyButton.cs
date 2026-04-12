@@ -42,7 +42,8 @@ namespace Netick.Examples.Steam
             {
                 if (generation != currentGeneration || !gameObject.activeInHierarchy)
                     return;
-                await Task.Delay(500);
+                AssociatedLobby.Refresh();
+                await Task.Delay(1000);
                 pingStr = AssociatedLobby.GetData(SteamLobbyExample.LobbyLocationKey);
             }
 

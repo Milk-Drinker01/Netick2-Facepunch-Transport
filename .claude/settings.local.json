@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:partner.steamgames.com)"
+      "WebFetch(domain:partner.steamgames.com)",
+      "WebFetch(domain:wiki.facepunch.com)"
     ]
   }
 }
