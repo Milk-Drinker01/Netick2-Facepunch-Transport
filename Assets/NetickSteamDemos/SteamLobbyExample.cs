@@ -87,6 +87,7 @@ public class SteamLobbyExample : MonoBehaviour
         FacepunchTransport.OnSteamSocketServerStarted += OnNetickServerStarted;
         FacepunchTransport.OnSteamSocketClientDisconnect += DisconnectedFromServer;
         FacepunchTransport.OnSteamSocketShutdown += OnNetickShutdown;
+        SteamNetworkingUtils.InitRelayNetworkAccess();  //initialize steam relay since we intend to use it
 
         if (_lobbyCallbacksInitialized)
             return;

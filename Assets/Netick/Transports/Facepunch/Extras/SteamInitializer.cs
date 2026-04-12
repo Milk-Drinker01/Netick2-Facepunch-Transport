@@ -20,21 +20,49 @@ namespace Netick.Transports.Facepunch.Extras
 
         void Awake()
         {
-            if (!SteamClient.IsValid)
-            {
-                SteamClient.Init(AppID);
-            }
-
+            if (SteamClient.IsValid)
+                return;
+            //SteamClient.Init(AppID);
+            StartCoroutine(TryStartSteam());
             StartCoroutine(EnsureValidity());
+        }
+
+        IEnumerator TryStartSteam()
+        {
+            while(true)
+            {
+                try
+                {
+                    SteamClient.Init(AppID);
+                    yield break;
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError(e);
+                }
+                //Debug.Log("something went wrong loading steam, make sure you have it open!");
+                yield return new WaitForSeconds(.5f);
+            }
         }
 
         IEnumerator EnsureValidity()
         {
             yield return new WaitUntil(() => SteamClient.IsValid);
+            Debug.Log("Successfully Initialized Steam");
             OnInitialize?.Invoke();
         }
 
         private void OnDestroy()
+        {
+            ShutDownSteam();
+        }
+
+        void OnApplicationQuit()
+        {
+            ShutDownSteam();
+        }
+
+        void ShutDownSteam()
         {
             if (SteamClient.IsValid)
             {
