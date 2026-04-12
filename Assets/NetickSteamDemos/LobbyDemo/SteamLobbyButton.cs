@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Steamworks;
 using Steamworks.Data;
 using UnityEngine;
@@ -37,9 +38,13 @@ namespace Netick.Examples.Steam
                 return;
 
             string pingStr = AssociatedLobby.GetData(SteamLobbyExample.LobbyLocationKey);
-
-            if (string.IsNullOrEmpty(pingStr))
-                return;
+            while (string.IsNullOrEmpty(pingStr))
+            {
+                if (generation != currentGeneration)
+                    return;
+                await Task.Delay(500);
+                pingStr = AssociatedLobby.GetData(SteamLobbyExample.LobbyLocationKey);
+            }
 
             var location = NetPingLocation.TryParseFromString(pingStr);
             if (!location.HasValue)

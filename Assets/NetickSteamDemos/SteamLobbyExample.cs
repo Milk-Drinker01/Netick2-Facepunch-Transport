@@ -226,6 +226,8 @@ public class SteamLobbyExample : MonoBehaviour
 
     void OnLobbyCreated(Result status, Lobby lobby)
     {
+        CurrentLobby = lobby;
+
         lobby.SetData("GameName", GameName);
         lobby.SetData(LobbyNameKey, $"{SteamClient.Name}'s lobby.");
         WaitForPingLocation();
@@ -233,8 +235,6 @@ public class SteamLobbyExample : MonoBehaviour
         //NetickConfig config = Resources.Load<NetickConfig>("netickConfig");
         //lobby.MaxMembers = config.GetMaxPlayers;
         lobby.MaxMembers = NumberOfSlots;
-
-        CurrentLobby = lobby;
 
         Debug.Log($"lobby {lobby.Id} was created");
 
