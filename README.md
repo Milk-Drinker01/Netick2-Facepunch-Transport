@@ -23,7 +23,7 @@ For a complete example of the lobby usage check `Assets/NetickSteamDemo/SteamNet
  - Steam Lobbies and matchmaking example
  - Create public, private, and friends only lobbies
  - Join friends lobbies with the "Join Friend" button on steam
- - Public lobby browser with distance queries
+ - Public lobby browser with distance queries and latency estimation
  - Steam command line to auto-join lobbies on startup, when the game is started by clicking "join friend" on steam
  - Voice Chat (hold V to record and transmit steam voice data)
 
