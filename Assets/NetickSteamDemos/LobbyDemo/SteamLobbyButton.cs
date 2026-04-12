@@ -34,13 +34,13 @@ namespace Netick.Examples.Steam
             LobbyLatencyText.text = "-ms";
             await SteamNetworkingUtils.WaitForPingDataAsync();
 
-            if (generation != currentGeneration)    //prevent double set (because of pooling)
+            if (generation != currentGeneration || !gameObject.activeInHierarchy)    //prevent double set (because of pooling)
                 return;
 
             string pingStr = AssociatedLobby.GetData(SteamLobbyExample.LobbyLocationKey);
             while (string.IsNullOrEmpty(pingStr))
             {
-                if (generation != currentGeneration)
+                if (generation != currentGeneration || !gameObject.activeInHierarchy)
                     return;
                 await Task.Delay(500);
                 pingStr = AssociatedLobby.GetData(SteamLobbyExample.LobbyLocationKey);
