@@ -18,6 +18,22 @@ namespace Netick.Examples.Steam
         public Button StartServerButton;
         public Button ConnectToServerButton;
         public Button StopServerButton;
+
+        private Stack<SteamLobbyButton> _lobbyPool = new Stack<SteamLobbyButton>();
+        private List<SteamLobbyButton> _activeLobbyButtons = new List<SteamLobbyButton>();
+
+        private SteamLobbyButton GetLobbyButton()
+        {
+            if (_lobbyPool.TryPop(out SteamLobbyButton button))
+            {
+                if (button == null)
+                    return GetLobbyButton();
+                return button;
+            }
+            var lobbyGO = Instantiate(LobbyInfoPrefab, LobbyContent.transform);
+            return lobbyGO.GetComponent<SteamLobbyButton>();
+        }
+
         private void Awake()
         {
             if (instance == null)
@@ -68,31 +84,21 @@ namespace Netick.Examples.Steam
 
         public void ClearLobbyList()
         {
-            for (int i = 0; i < LobbyContent.transform.childCount; i++)
-                Destroy(LobbyContent.transform.GetChild(i).gameObject);
+            for (int i = 0; i < _activeLobbyButtons.Count; i++)
+            {
+                _activeLobbyButtons[i].gameObject.SetActive(false);
+                _lobbyPool.Push(_activeLobbyButtons[i]);
+            }
+            _activeLobbyButtons.Clear();
         }
 
         public void UpdateLobbyList(List<Lobby> LobbyList)
         {
             foreach (var lobby in LobbyList)
             {
-                var lobbyGO = Instantiate(LobbyInfoPrefab, LobbyContent.transform);
-                lobbyGO.transform.GetChild(0).GetComponent<Text>().text = lobby.GetData("LobbyName");
-
-                string pingStr = lobby.GetData("PingLocation");
-                if (!string.IsNullOrEmpty(pingStr))
-                {
-                    var location = NetPingLocation.TryParseFromString(pingStr);
-                    if (location.HasValue)
-                    {
-                        int ping = SteamNetworkingUtils.EstimatePingTo(location.Value);
-                        Debug.Log($"Lobby {lobby.GetData("LobbyName")} - Est. ping: {ping}ms");
-                    }
-                }
-
-                lobbyGO.GetComponent<Button>().onClick.AddListener(async () => {
-                    await SteamLobbyExample.JoinLobby(lobby.Id);
-                });
+                SteamLobbyButton lobbyButton = GetLobbyButton();
+                _activeLobbyButtons.Add(lobbyButton);
+                lobbyButton.SetupButton(lobby);
             }
         }
 

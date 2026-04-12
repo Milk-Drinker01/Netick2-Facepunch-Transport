@@ -38,7 +38,6 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18154733, g: 0.22719014, b: 0.30740693, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -3631,15 +3630,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6475ef2cc420914e87d5433265300cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Offset: {x: 27, y: 20}
+  TextAnchor: 0
+  TextLayout: 0
+  TextStartOffset: {x: 27, y: 20}
+  HorizontalPadding: 20
+  LineHeight: 15
+  IconAnchor: 1
+  IconLayout: 0
+  IconStartOffset: {x: -40, y: 40}
+  IconSpacing: {x: 10, y: 10}
+  IconSize: 30
+  ContentFixedWidth: 120
+  VerticalTitleOffset: 150
+  ShowProfilerStats: 0
   MediumLatencyThreshold: 150
   HighLatencyThreshold: 250
   MediumPacketLossThreshold: 1
   HighPacketLossThreshold: 10
-  PacketLossIconOffset: {x: -80, y: 30}
-  LatencyIconOffset: {x: -80, y: 70}
-  ServerLagIconOffset: {x: -80, y: 110}
-  IconSize: 30
 --- !u!114 &1293352711
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6983,6 +6990,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   AutoStartServerWithLobby: 1
+  LeaveLobbyWhenHostLeaves: 1
   NumberOfSlots: 16
   GameName: Your Games Name
   LobbySearchDistance: 3
