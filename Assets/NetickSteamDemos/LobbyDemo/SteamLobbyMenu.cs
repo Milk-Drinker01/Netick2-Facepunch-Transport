@@ -98,6 +98,7 @@ namespace Netick.Examples.Steam
             {
                 SteamLobbyButton lobbyButton = GetLobbyButton();
                 _activeLobbyButtons.Add(lobbyButton);
+                lobbyButton.gameObject.SetActive(true);
                 lobbyButton.SetupButton(lobby);
             }
         }
