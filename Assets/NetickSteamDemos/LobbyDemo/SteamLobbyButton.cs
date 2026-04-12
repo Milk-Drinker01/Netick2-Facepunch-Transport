@@ -3,43 +3,46 @@ using Steamworks.Data;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SteamLobbyButton : MonoBehaviour
+namespace Netick.Examples.Steam
 {
-    public Text LobbyNameText;
-    public Text LobbyLatencyText;
-
-    public Lobby AssociatedLobby;
-
-    public async void OnPress()
+    public class SteamLobbyButton : MonoBehaviour
     {
-        await SteamLobbyExample.JoinLobby(AssociatedLobby.Id);
-    }
+        public Text LobbyNameText;
+        public Text LobbyLatencyText;
 
-    public void SetupButton(Lobby lobby)
-    {
-        AssociatedLobby = lobby;
+        public Lobby AssociatedLobby;
 
-        LobbyNameText.text = AssociatedLobby.GetData("LobbyName");
-        EstimateLatency();
-    }
-    
-    public void EstimateLatency()
-    {
-        string pingStr = AssociatedLobby.GetData("PingLocation");
-        LobbyLatencyText.text = "-ms";
+        public async void OnPress()
+        {
+            await SteamLobbyExample.JoinLobby(AssociatedLobby.Id);
+        }
 
-        if (string.IsNullOrEmpty(pingStr))
-            return;
+        public void SetupButton(Lobby lobby)
+        {
+            AssociatedLobby = lobby;
 
-        var location = NetPingLocation.TryParseFromString(pingStr);
-        if (!location.HasValue)
-            return;
+            LobbyNameText.text = AssociatedLobby.GetData(SteamLobbyExample.LobbyNameKey);
+            EstimateLatency();
+        }
 
-        int ping = SteamNetworkingUtils.EstimatePingTo(location.Value);
-        if (ping == -1)
-            return;
+        public void EstimateLatency()
+        {
+            string pingStr = AssociatedLobby.GetData(SteamLobbyExample.LobbyLocationKey);
+            LobbyLatencyText.text = "-ms";
 
-        //Debug.Log($"Lobby {AssociatedLobby.GetData("LobbyName")} - Est. ping: {ping}ms");
-        LobbyLatencyText.text = $"{ping} ms";
+            if (string.IsNullOrEmpty(pingStr))
+                return;
+
+            var location = NetPingLocation.TryParseFromString(pingStr);
+            if (!location.HasValue)
+                return;
+
+            int ping = SteamNetworkingUtils.EstimatePingTo(location.Value);
+            if (ping == -1)
+                return;
+
+            //Debug.Log($"Lobby {AssociatedLobby.GetData("LobbyName")} - Est. ping: {ping}ms");
+            LobbyLatencyText.text = $"{ping} ms";
+        }
     }
 }

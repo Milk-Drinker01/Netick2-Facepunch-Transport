@@ -26,6 +26,8 @@ public class SteamLobbyExample : MonoBehaviour
         Private
     }
 
+    public const string LobbyNameKey = "LobbyName";
+    public const string LobbyLocationKey = "PingLocation";
     public static event Action<Lobby> OnLobbyEnteredEvent;
     public static event Action OnLobbyLeftEvent;
     public static event Action OnLobbySearchStart;
@@ -107,7 +109,7 @@ public class SteamLobbyExample : MonoBehaviour
             //if (lobby.Id != CurrentLobby.Id)
             //    LeaveLobby();
 
-            Debug.Log($"You joined {lobby.GetData("LobbyName")}");
+            Debug.Log($"You joined {lobby.GetData(LobbyNameKey)}");
             CurrentLobby = lobby;
             _lobbyOwner = lobby.Owner.Id;
             OnLobbyEnteredEvent?.Invoke(lobby);
@@ -225,10 +227,10 @@ public class SteamLobbyExample : MonoBehaviour
     void OnLobbyCreated(Result status, Lobby lobby)
     {
         lobby.SetData("GameName", GameName);
-        lobby.SetData("LobbyName", $"{SteamClient.Name}'s lobby.");
+        lobby.SetData(LobbyNameKey, $"{SteamClient.Name}'s lobby.");
         var pingLocation = SteamNetworkingUtils.LocalPingLocation;
         if (pingLocation.HasValue)
-            lobby.SetData("PingLocation", pingLocation.Value.ToString());
+            lobby.SetData(LobbyLocationKey, pingLocation.Value.ToString());
         lobby.SetJoinable(true);
         //NetickConfig config = Resources.Load<NetickConfig>("netickConfig");
         //lobby.MaxMembers = config.GetMaxPlayers;
