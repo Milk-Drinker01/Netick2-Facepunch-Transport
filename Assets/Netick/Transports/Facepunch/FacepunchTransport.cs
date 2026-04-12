@@ -80,34 +80,15 @@ namespace Netick.Transports.Facepunch
                 return;
             }
 
-            InitSteamworks(_logLevel);
+            SteamID = SteamClient.SteamId;
+
+            if (_logLevel <= LogLevel.Developer)
+                Debug.Log($"[{nameof(FacepunchTransport)}] - Fetched user Steam ID.");
 
             _buffer = new BitBuffer(createChunks: false);
 
             for (int i = 0; i < Engine.MaxClients; i++)
                 _freeConnections.Enqueue(new FacepunchConnection());
-        }
-
-        public static async void InitSteamworks(LogLevel logLevel = LogLevel.Developer)
-        {
-            if (TransportInitialized)
-                return;
-            TransportInitialized = true;
-
-            while (!SteamClient.IsValid)
-            {
-                await Task.Yield();
-            }
-
-            SteamNetworkingUtils.InitRelayNetworkAccess();
-
-            if (logLevel <= LogLevel.Developer)
-                Debug.Log($"[{nameof(FacepunchTransport)}] - Initialized access to Steam Relay Network.");
-
-            SteamID = SteamClient.SteamId;
-
-            if (logLevel <= LogLevel.Developer)
-                Debug.Log($"[{nameof(FacepunchTransport)}] - Fetched user Steam ID.");
         }
 
         public override void Run(RunMode mode, int port)
