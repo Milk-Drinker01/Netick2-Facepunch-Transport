@@ -226,6 +226,9 @@ public class SteamLobbyExample : MonoBehaviour
     {
         lobby.SetData("GameName", GameName);
         lobby.SetData("LobbyName", $"{SteamClient.Name}'s lobby.");
+        var pingLocation = SteamNetworkingUtils.LocalPingLocation;
+        if (pingLocation.HasValue)
+            lobby.SetData("PingLocation", pingLocation.Value.ToString());
         lobby.SetJoinable(true);
         //NetickConfig config = Resources.Load<NetickConfig>("netickConfig");
         //lobby.MaxMembers = config.GetMaxPlayers;

@@ -78,6 +78,18 @@ namespace Netick.Examples.Steam
             {
                 var lobbyGO = Instantiate(LobbyInfoPrefab, LobbyContent.transform);
                 lobbyGO.transform.GetChild(0).GetComponent<Text>().text = lobby.GetData("LobbyName");
+
+                string pingStr = lobby.GetData("PingLocation");
+                if (!string.IsNullOrEmpty(pingStr))
+                {
+                    var location = NetPingLocation.TryParseFromString(pingStr);
+                    if (location.HasValue)
+                    {
+                        int ping = SteamNetworkingUtils.EstimatePingTo(location.Value);
+                        Debug.Log($"Lobby {lobby.GetData("LobbyName")} - Est. ping: {ping}ms");
+                    }
+                }
+
                 lobbyGO.GetComponent<Button>().onClick.AddListener(async () => {
                     await SteamLobbyExample.JoinLobby(lobby.Id);
                 });
