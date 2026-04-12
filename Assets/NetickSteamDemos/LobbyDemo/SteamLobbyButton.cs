@@ -12,6 +12,8 @@ namespace Netick.Examples.Steam
 
         public Lobby AssociatedLobby;
 
+        private int currentGeneration = 0;
+
         public async void OnPress()
         {
             await SteamLobbyExample.JoinLobby(AssociatedLobby.Id);
@@ -19,16 +21,22 @@ namespace Netick.Examples.Steam
 
         public void SetupButton(Lobby lobby)
         {
+            currentGeneration++;
             AssociatedLobby = lobby;
 
             LobbyNameText.text = AssociatedLobby.GetData(SteamLobbyExample.LobbyNameKey);
-            EstimateLatency();
+            EstimateLatency(currentGeneration);
         }
 
-        public void EstimateLatency()
+        async void EstimateLatency(int generation)
         {
-            string pingStr = AssociatedLobby.GetData(SteamLobbyExample.LobbyLocationKey);
             LobbyLatencyText.text = "-ms";
+            await SteamNetworkingUtils.WaitForPingDataAsync();
+
+            if (generation != currentGeneration)    //prevent double set (because of pooling)
+                return;
+
+            string pingStr = AssociatedLobby.GetData(SteamLobbyExample.LobbyLocationKey);
 
             if (string.IsNullOrEmpty(pingStr))
                 return;
