@@ -33,6 +33,7 @@ public class SteamLobbyExample : MonoBehaviour
     public static event Action OnGameServerShutdown;
     public static Lobby CurrentLobby;
     static SteamId _lobbyOwner;
+    static bool _lobbyCallbacksInitialized;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void OnLoad()
@@ -65,7 +66,8 @@ public class SteamLobbyExample : MonoBehaviour
 
     public static SteamId SteamID => SteamClient.SteamId;
 
-    private void Start() {
+    private void Start()
+    {
         if (SteamClient.IsValid)
             InitLobbyCallbacks();
         else
@@ -85,6 +87,10 @@ public class SteamLobbyExample : MonoBehaviour
         FacepunchTransport.OnSteamSocketServerStarted += OnNetickServerStarted;
         FacepunchTransport.OnSteamSocketClientDisconnect += DisconnectedFromServer;
         FacepunchTransport.OnSteamSocketShutdown += OnNetickShutdown;
+
+        if (_lobbyCallbacksInitialized)
+            return;
+        _lobbyCallbacksInitialized = true;
 
         SteamFriends.OnGameLobbyJoinRequested += async (lobby, steamId) => {
             await SteamMatchmaking.JoinLobbyAsync(lobby.Id);
@@ -281,6 +287,7 @@ public class SteamLobbyExample : MonoBehaviour
         DisconnectedFromServer();
         OnLobbyLeftEvent?.Invoke();
         CurrentLobby = default;
+        _lobbyOwner = default;
     }
     #endregion
 
