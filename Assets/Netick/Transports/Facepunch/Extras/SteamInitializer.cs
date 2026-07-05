@@ -8,22 +8,50 @@ namespace Netick.Transports.Facepunch.Extras
     public class SteamInitializer : MonoBehaviour
     {
         public static event Action OnInitialize;
+        public static SteamInitializer instance;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void OnLoad()
         {
             OnInitialize = delegate { };
+            instance = null;
         }
 
         [SerializeField]
-        uint AppID = 480;
+        protected uint AppID = 480;
 
         void Awake()
         {
+            if (instance == null)
+            {
+                DontDestroyOnLoad(gameObject);
+                instance = this;
+                InitSteam();
+            }
+            else
+                Destroy(gameObject);
+        }
+
+        public virtual uint GetAppId()
+        {
+            return AppID;
+        }
+
+        public virtual bool IsSteamEnabled()
+        {
+            return true;
+        }
+
+        private void InitSteam()
+        {
             if (SteamClient.IsValid)
                 return;
-            //SteamClient.Init(AppID);
+
+            if (!IsSteamEnabled())
+                return;
+
             StartCoroutine(TryStartSteam());
+
             StartCoroutine(EnsureValidity());
         }
 
@@ -33,7 +61,7 @@ namespace Netick.Transports.Facepunch.Extras
             {
                 try
                 {
-                    SteamClient.Init(AppID);
+                    SteamClient.Init(GetAppId());
                     yield break;
                 }
                 catch (Exception e)
@@ -62,7 +90,7 @@ namespace Netick.Transports.Facepunch.Extras
             ShutDownSteam();
         }
 
-        void ShutDownSteam()
+        protected virtual void ShutDownSteam()
         {
             if (SteamClient.IsValid)
             {
