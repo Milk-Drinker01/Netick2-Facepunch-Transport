@@ -74,7 +74,7 @@ namespace Netick.Transports.Facepunch.Extras
             {
                 if (Sandbox.LocalPlayer == null)
                     return;
-                if (Sandbox.LocalPlayer.PlayerObject == null)
+                if (!ConnectionIdToPlayerObjectID.ContainsKey(0))
                     return;
             }
             if (!SteamClient.IsValid)
@@ -135,9 +135,10 @@ namespace Netick.Transports.Facepunch.Extras
                 compressedVoiceData[length + i] = idPointer[i];
 
             //send the voice chat data
-            foreach (NetworkConnection conn in sandbox.ConnectedClients)
+            foreach (NetworkPlayerId playerId in sandbox.Players)
             {
-                if (conn != clientsConnection)
+                NetworkConnection conn = sandbox.GetPlayerById(playerId) as NetworkConnection;
+                if (conn != null && conn != clientsConnection)
                     conn.SendData(VoiceDataID, compressedVoiceData, length + 4, TransportDeliveryMethod.Unreliable);
             }
         }

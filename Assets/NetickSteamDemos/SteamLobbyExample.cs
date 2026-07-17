@@ -34,14 +34,13 @@ public class SteamLobbyExample : MonoBehaviour
     public static event Action<List<Lobby>> OnLobbySearchFinished;
     public static event Action OnGameServerShutdown;
     public static Lobby CurrentLobby;
-    static SteamId _lobbyOwner;
+    static SteamId _lobbyOwner => CurrentLobby.Owner.Id;
     static bool _lobbyCallbacksInitialized;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void OnLoad()
     {
         CurrentLobby = default;
-        _lobbyOwner = default;
         OnLobbyEnteredEvent = delegate { };
         OnLobbyLeftEvent = delegate { };
         OnLobbySearchStart = delegate { };
@@ -111,7 +110,6 @@ public class SteamLobbyExample : MonoBehaviour
 
             Debug.Log($"You joined {lobby.GetData(LobbyNameKey)}");
             CurrentLobby = lobby;
-            _lobbyOwner = lobby.Owner.Id;
             OnLobbyEnteredEvent?.Invoke(lobby);
 
             if (AutoStartServerWithLobby && !lobby.IsOwnedBy(SteamClient.SteamId))
@@ -303,7 +301,6 @@ public class SteamLobbyExample : MonoBehaviour
         DisconnectedFromServer();
         OnLobbyLeftEvent?.Invoke();
         CurrentLobby = default;
-        _lobbyOwner = default;
     }
     #endregion
 

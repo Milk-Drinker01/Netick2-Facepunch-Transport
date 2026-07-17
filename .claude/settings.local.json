@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "WebFetch(domain:partner.steamgames.com)",
-      "WebFetch(domain:wiki.facepunch.com)"
+      "WebFetch(domain:wiki.facepunch.com)",
+      "Bash(ilspycmd -t Netick.NetworkPlayer \"Library/PackageCache/com.karrar.netick@73cc288c6e/Netick/Runtime/Netick.dll\")"
     ]
   }
 }
